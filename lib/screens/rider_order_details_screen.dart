@@ -1,13 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:yesdhobi_ridervendor/models/order_flow_model.dart';
 import 'package:yesdhobi_ridervendor/theme.dart';
 import 'package:yesdhobi_ridervendor/screens/pickup_verification_screen.dart';
 import 'package:yesdhobi_ridervendor/widgets/custom_back_button.dart';
+import 'package:yesdhobi_ridervendor/widgets/app_bottom_nav.dart';
 
 class RiderOrderDetailsScreen extends StatelessWidget {
-  const RiderOrderDetailsScreen({super.key});
+  final OrderFlowState? orderState;
+
+  const RiderOrderDetailsScreen({
+    super.key,
+    this.orderState,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final state = orderState ??
+        OrderFlowState(
+          orderId: '#YD-20240318-001',
+          customerName: 'Rahul Sharma',
+          customerInitials: 'RS',
+          customerAddress: 'B-402, Shanti Vihar, Sector 45',
+          estimatedLoad: '12-15 items',
+        );
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
@@ -213,19 +228,23 @@ class RiderOrderDetailsScreen extends StatelessWidget {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: const [
-                            Row(
-                              children: [
-                                Icon(Icons.navigation_outlined, color: Colors.white, size: 18),
-                                SizedBox(width: 8),
-                                Text(
-                                  '1.4 km away from pickup',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Icon(Icons.navigation_outlined, color: Colors.white, size: 18),
+                                  SizedBox(width: 8),
+                                  Flexible(
+                                    child: Text(
+                                      '1.4 km away from pickup',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                             Text(
                               'ETA 6 MIN',
@@ -265,9 +284,9 @@ class RiderOrderDetailsScreen extends StatelessWidget {
                         CircleAvatar(
                           radius: 24,
                           backgroundColor: const Color(0xFFEEF2FF),
-                          child: const Text(
-                            'SK',
-                            style: TextStyle(
+                          child: Text(
+                            state.customerInitials,
+                            style: const TextStyle(
                               color: AppTheme.primaryColor,
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
@@ -278,17 +297,17 @@ class RiderOrderDetailsScreen extends StatelessWidget {
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
+                            children: [
                               Text(
-                                'Sneha Kapoor',
-                                style: TextStyle(
+                                state.customerName,
+                                style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFF1E293B),
                                 ),
                               ),
-                              SizedBox(height: 4),
-                              Text(
+                              const SizedBox(height: 4),
+                              const Text(
                                 'Customer',
                                 style: TextStyle(
                                   fontSize: 12,
@@ -299,8 +318,8 @@ class RiderOrderDetailsScreen extends StatelessWidget {
                           ),
                         ),
                         Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFEEF2FF),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFEEF2FF),
                             shape: BoxShape.circle,
                           ),
                           child: IconButton(
@@ -314,19 +333,19 @@ class RiderOrderDetailsScreen extends StatelessWidget {
                     _buildDetailRow(
                       icon: Icons.location_on_outlined,
                       label: 'PICKUP ADDRESS',
-                      value: 'B-402, Shanti Vihar, Sector 45',
+                      value: state.customerAddress,
                     ),
                     const SizedBox(height: 16),
                     _buildDetailRow(
                       icon: Icons.inventory_2_outlined,
                       label: 'EST. LOAD SIZE',
-                      value: '8-12 items',
+                      value: state.estimatedLoad.isNotEmpty ? state.estimatedLoad : '12-15 items',
                     ),
                     const SizedBox(height: 16),
                     _buildDetailRow(
                       icon: Icons.tag,
                       label: 'ORDER ID',
-                      value: '#YD-20240318-001',
+                      value: state.orderId,
                     ),
                   ],
                 ),
@@ -365,7 +384,7 @@ class RiderOrderDetailsScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const PickupVerificationScreen(),
+                        builder: (_) => PickupVerificationScreen(orderState: state),
                       ),
                     );
                   },
@@ -391,45 +410,7 @@ class RiderOrderDetailsScreen extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -5),
-            ),
-          ],
-        ),
-        child: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.white,
-          currentIndex: 1, // Orders tab selected
-          selectedItemColor: AppTheme.primaryColor,
-          unselectedItemColor: const Color(0xFF94A3B8),
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_filled),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.local_shipping_outlined),
-              label: 'Orders',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.account_balance_wallet_outlined),
-              label: 'Earnings',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              label: 'Profile',
-            ),
-          ],
-        ),
-      ),
+      bottomNavigationBar: const AppBottomNav(currentIndex: 1),
     );
   }
 

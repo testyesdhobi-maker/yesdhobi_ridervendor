@@ -1,0 +1,313 @@
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:yesdhobi_ridervendor/theme.dart';
+import 'package:yesdhobi_ridervendor/models/order_flow_model.dart';
+import 'package:yesdhobi_ridervendor/widgets/custom_back_button.dart';
+import 'package:yesdhobi_ridervendor/widgets/otp_input.dart';
+import 'package:yesdhobi_ridervendor/widgets/vendor_card.dart';
+import 'package:yesdhobi_ridervendor/widgets/app_bottom_nav.dart';
+import 'package:yesdhobi_ridervendor/screens/dropoff_confirmed_screen.dart';
+
+class ConfirmVendorDropoffScreen extends StatefulWidget {
+  final OrderFlowState? orderState;
+
+  const ConfirmVendorDropoffScreen({
+    super.key,
+    this.orderState,
+  });
+
+  @override
+  State<ConfirmVendorDropoffScreen> createState() =>
+      _ConfirmVendorDropoffScreenState();
+}
+
+class _ConfirmVendorDropoffScreenState
+    extends State<ConfirmVendorDropoffScreen> {
+  late OrderFlowState _state;
+  String _otp = '58';
+  int _countdownSeconds = 28;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _state = widget.orderState ??
+        OrderFlowState(
+          orderId: '#YD-9612',
+          customerName: 'Amit Patel',
+          vendorName: 'Star Bright Laundry',
+          vendorRating: 4.9,
+          vendorTag: 'Professional Partner',
+          vendorAddress: 'Shop No. 12, Sector 15, HSR Layout, Bengaluru',
+        );
+    _startCountdownTimer();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _startCountdownTimer() {
+    _timer?.cancel();
+    setState(() {
+      _countdownSeconds = 28;
+    });
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_countdownSeconds > 0) {
+        setState(() {
+          _countdownSeconds--;
+        });
+      } else {
+        _timer?.cancel();
+      }
+    });
+  }
+
+  void _resendOtp() {
+    if (_countdownSeconds == 0) {
+      _startCountdownTimer();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('OTP requested from vendor.'),
+          backgroundColor: AppTheme.primaryColor,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+    }
+  }
+
+  void _verifyAndConfirm() {
+    if (_otp.length < 4) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Please enter the complete 4-digit Vendor OTP.'),
+          backgroundColor: const Color(0xFFEF4444),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+      return;
+    }
+
+    _state.stage = DeliveryStage.delivered;
+    _state.vendorOtp = _otp;
+    _state.dropoffTime = '10:45 AM';
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => DropoffConfirmedScreen(orderState: _state),
+      ),
+    );
+  }
+
+  String get _formattedCountdown {
+    final minutes = (_countdownSeconds ~/ 60).toString().padLeft(2, '0');
+    final seconds = (_countdownSeconds % 60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF8FAFC),
+        elevation: 0,
+        leading: const CustomBackButton(),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEEF2FF),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text(
+                  'DROP OFF',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.primaryColor,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header Titles
+              const Text(
+                'Confirm Vendor Drop-off',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF0F172A),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Order #YD-9612',
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Color(0xFF64748B),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Drop-off Vendor Card
+              VendorCard(
+                sectionTitle: 'DROP-OFF VENDOR',
+                vendorName: 'Star Bright Laundry',
+                rating: 4.9,
+                tag: 'Professional Partner',
+                address: 'Shop No. 12, Sector 15, HSR Layout, Bengaluru',
+                useStorefrontIcon: true,
+                onCallTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('Calling Star Bright Laundry...'),
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // Enter Vendor OTP Card
+              Container(
+                padding: const EdgeInsets.all(20.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.02),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Enter Vendor OTP',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF0F172A),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Ask the vendor for the 4-digit OTP to confirm clothes handover',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF64748B),
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Reusable OTP Input
+                    OtpInput(
+                      length: 4,
+                      initialValue: '58',
+                      onChanged: (val) {
+                        setState(() {
+                          _otp = val;
+                        });
+                      },
+                      onCompleted: (val) {
+                        setState(() {
+                          _otp = val;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Resend OTP
+                    Center(
+                      child: Column(
+                        children: [
+                          GestureDetector(
+                            onTap: _resendOtp,
+                            child: Text(
+                              'Resend OTP',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: _countdownSeconds == 0
+                                    ? AppTheme.primaryColor
+                                    : AppTheme.primaryColor.withOpacity(0.8),
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            _countdownSeconds > 0
+                                ? 'Resend in $_formattedCountdown'
+                                : 'You can resend now',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFF94A3B8),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Verify & Confirm Drop-off CTA (Royal Blue Button)
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton(
+                  onPressed: _verifyAndConfirm,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryColor,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: const Text(
+                    'Verify & Confirm Drop-off',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: const AppBottomNav(currentIndex: 1),
+    );
+  }
+}

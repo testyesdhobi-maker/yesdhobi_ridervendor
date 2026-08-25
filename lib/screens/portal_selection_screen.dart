@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:yesdhobi_ridervendor/theme.dart';
 import 'package:yesdhobi_ridervendor/widgets/app_logo.dart';
 import 'package:yesdhobi_ridervendor/screens/coming_soon_screen.dart';
+import 'package:yesdhobi_ridervendor/screens/rider_register_step1_screen.dart';
 import 'package:yesdhobi_ridervendor/screens/rider_login_screen.dart';
+import 'package:yesdhobi_ridervendor/services/rider_auth_service.dart';
 
 class PortalSelectionScreen extends StatefulWidget {
   const PortalSelectionScreen({super.key});
@@ -46,7 +48,7 @@ class _PortalSelectionScreenState extends State<PortalSelectionScreen> {
                 ],
               ),
               const SizedBox(height: 48),
-              
+
               // Title and Subtitle
               const Text(
                 'Welcome to Yes Dhobi',
@@ -70,7 +72,8 @@ class _PortalSelectionScreenState extends State<PortalSelectionScreen> {
               // Rider Card
               _buildPortalCard(
                 title: 'Delivery Rider',
-                description: 'Deliver laundry in your neighborhood & earn up to 40k-80k monthly.',
+                description:
+                    'Deliver laundry in your neighborhood & earn up to 40k-80k monthly.',
                 icon: Icons.local_shipping_outlined,
                 iconContainerColor: const Color(0xFFEEF2FF),
                 iconColor: AppTheme.primaryColor,
@@ -81,16 +84,17 @@ class _PortalSelectionScreenState extends State<PortalSelectionScreen> {
                   });
                 },
               ),
-              
+
               const SizedBox(height: 16),
 
               // Vendor Card
               _buildPortalCard(
                 title: 'Vendor',
-                description: 'Manage your laundry business, track orders & earnings.',
+                description:
+                    'Manage your laundry business, track orders & earnings.',
                 icon: Icons.storefront_outlined,
                 iconContainerColor: const Color(0xFFFEF9C3),
-                iconColor: const Color(0xFFD97706), // A darker yellow/orange for contrast
+                iconColor: const Color(0xFFD97706),
                 isSelected: selectedPortal == 'Vendor',
                 onTap: () {
                   setState(() {
@@ -110,12 +114,19 @@ class _PortalSelectionScreenState extends State<PortalSelectionScreen> {
                     if (selectedPortal == 'Vendor') {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const ComingSoonScreen()),
+                        MaterialPageRoute(
+                            builder: (_) => const ComingSoonScreen()),
                       );
                     } else {
+                      // Navigate directly to Personal Details (Step 1)
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const RiderLoginScreen()),
+                        MaterialPageRoute(
+                          builder: (_) => RiderRegisterStep1Screen(
+                            registrationModel:
+                                RiderAuthService.instance.registrationModel,
+                          ),
+                        ),
                       );
                     }
                   },
@@ -128,7 +139,9 @@ class _PortalSelectionScreenState extends State<PortalSelectionScreen> {
                     elevation: 0,
                   ),
                   child: Text(
-                    selectedPortal == 'Rider' ? 'Continue as Rider' : 'Continue as Vendor',
+                    selectedPortal == 'Rider'
+                        ? 'Continue as Rider'
+                        : 'Continue as Vendor',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -136,6 +149,39 @@ class _PortalSelectionScreenState extends State<PortalSelectionScreen> {
                   ),
                 ),
               ),
+              const SizedBox(height: 16),
+
+              // Returning rider login link
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Already registered? ',
+                    style: TextStyle(
+                      color: Color(0xFF64748B),
+                      fontSize: 14,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const RiderLoginScreen()),
+                      );
+                    },
+                    child: const Text(
+                      'Login here',
+                      style: TextStyle(
+                        color: AppTheme.primaryColor,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
             ],
           ),
         ),

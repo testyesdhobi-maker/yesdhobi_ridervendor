@@ -1,0 +1,184 @@
+import 'package:flutter/material.dart';
+import 'package:yesdhobi_ridervendor/theme.dart';
+import 'package:yesdhobi_ridervendor/models/order_flow_model.dart';
+import 'package:yesdhobi_ridervendor/widgets/custom_back_button.dart';
+import 'package:yesdhobi_ridervendor/widgets/app_bottom_nav.dart';
+import 'package:yesdhobi_ridervendor/widgets/order_progress_stepper.dart';
+import 'package:yesdhobi_ridervendor/widgets/vendor_card.dart';
+import 'package:yesdhobi_ridervendor/widgets/order_info_card.dart';
+import 'package:yesdhobi_ridervendor/screens/confirm_vendor_dropoff_screen.dart';
+
+class OrderStatusScreen extends StatelessWidget {
+  final OrderFlowState? orderState;
+
+  const OrderStatusScreen({
+    super.key,
+    this.orderState,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final state = orderState ??
+        OrderFlowState(
+          orderId: '#YD-20240318-001',
+          customerName: 'Sneha Kapoor',
+          itemsQuantityText: '8-12 items (Premium Care)',
+          vendorName: 'CleanPro Laundry Services',
+          vendorRating: 4.8,
+          vendorTag: '(Trusted Partner)',
+          vendorAddress: 'Shop 12, Market Complex, Sector 22, Noida',
+          stage: DeliveryStage.outForDrop,
+        );
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: const CustomBackButton(),
+        title: const Text(
+          'Order Status',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF0F172A),
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Delivery Progress Card
+              OrderProgressStepper(
+                currentStage: state.stage,
+              ),
+              const SizedBox(height: 16),
+
+              // Drop-off Destination Card
+              VendorCard(
+                sectionTitle: 'DROP-OFF DESTINATION',
+                vendorName: state.vendorName.isNotEmpty
+                    ? state.vendorName
+                    : 'CleanPro Laundry Services',
+                rating: state.vendorRating,
+                tag: state.vendorTag,
+                address: state.vendorAddress,
+                useStorefrontIcon: false,
+                onCallTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Calling ${state.vendorName}...'),
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // Order Information Card
+              OrderInfoCard(
+                orderId: state.orderId == '#YD-8924'
+                    ? '#YD-20240318-001'
+                    : state.orderId,
+                customerName: state.customerName == 'Aarav Sharma'
+                    ? 'Sneha Kapoor'
+                    : state.customerName,
+                itemsQuantity: state.itemsQuantityText,
+              ),
+              const SizedBox(height: 24),
+
+              // Action Button 1: Navigate to Vendor
+              SizedBox(
+                width: double.infinity,
+                height: 54,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('Opening Google Maps navigation...'),
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                      ),
+                    );
+                  },
+                  icon: const Icon(
+                    Icons.navigation_outlined,
+                    size: 20,
+                    color: AppTheme.primaryColor,
+                  ),
+                  label: const Text(
+                    'Navigate to Vendor',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.primaryColor,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppTheme.primaryColor,
+                    side: const BorderSide(
+                      color: AppTheme.primaryColor,
+                      width: 1.5,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // Action Button 2: Confirm Drop-off (Primary Action)
+              SizedBox(
+                width: double.infinity,
+                height: 54,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ConfirmVendorDropoffScreen(
+                          orderState: state,
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(
+                    Icons.check,
+                    size: 20,
+                    color: Colors.white,
+                  ),
+                  label: const Text(
+                    'Confirm Drop-off',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF10B981),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: const AppBottomNav(currentIndex: 1),
+    );
+  }
+}

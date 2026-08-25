@@ -1,61 +1,151 @@
 import 'package:flutter/material.dart';
 import 'package:yesdhobi_ridervendor/theme.dart';
+import 'package:yesdhobi_ridervendor/models/order_flow_model.dart';
 import 'package:yesdhobi_ridervendor/widgets/custom_back_button.dart';
-import 'package:yesdhobi_ridervendor/widgets/dashed_border_painter.dart';
+import 'package:yesdhobi_ridervendor/widgets/app_bottom_nav.dart';
+import 'package:yesdhobi_ridervendor/widgets/add_item_bottom_sheet.dart';
+import 'package:yesdhobi_ridervendor/screens/confirm_pickup_screen.dart';
 
 class PickupVerificationScreen extends StatefulWidget {
-  const PickupVerificationScreen({super.key});
+  final OrderFlowState? orderState;
+
+  const PickupVerificationScreen({
+    super.key,
+    this.orderState,
+  });
 
   @override
-  State<PickupVerificationScreen> createState() => _PickupVerificationScreenState();
+  State<PickupVerificationScreen> createState() =>
+      _PickupVerificationScreenState();
 }
 
 class _PickupVerificationScreenState extends State<PickupVerificationScreen> {
-  final double rate = 100.0;
-  double weight1 = 1.2;
-  double weight2 = 0.8;
-  double weight3 = 1.0;
-
-  late TextEditingController controller1;
-  late TextEditingController controller2;
-  late TextEditingController controller3;
+  late OrderFlowState _orderState;
 
   @override
   void initState() {
     super.initState();
-    controller1 = TextEditingController(text: weight1.toString());
-    controller2 = TextEditingController(text: weight2.toString());
-    controller3 = TextEditingController(text: weight3.toString());
+    _orderState = widget.orderState ??
+        OrderFlowState(
+          orderId: '#YD-90823',
+          customerName: 'Rahul Sharma',
+          customerAddress: 'B-402, Shanti Vihar, Sector 45',
+          customerInitials: 'RS',
+          estimatedPrice: 450.0,
+          items: [],
+        );
   }
 
-  @override
-  void dispose() {
-    controller1.dispose();
-    controller2.dispose();
-    controller3.dispose();
-    super.dispose();
+  void _openAddItemSheet({
+    required String serviceCategory,
+    required double rate,
+    required String unit,
+  }) async {
+    final newItem = await AddItemBottomSheet.show(
+      context,
+      serviceCategory: serviceCategory,
+      rate: rate,
+      unit: unit,
+    );
+
+    if (newItem != null && mounted) {
+      setState(() {
+        _orderState.items.add(newItem);
+      });
+    }
   }
 
-  double get subtotalWeight => double.parse((weight1 + weight2 + weight3).toStringAsFixed(1));
-  double get subtotalPrice => double.parse((subtotalWeight * rate).toStringAsFixed(1));
+  void _confirmPickupAndPrice() {
+    if (_orderState.items.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'Please add at least one item before continuing.',
+          ),
+          backgroundColor: const Color(0xFFEF4444),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      );
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ConfirmPickupScreen(orderState: _orderState),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final washAndFoldItems = _orderState.items
+        .where((i) => i.category == 'Wash & Fold')
+        .toList();
+    final shoesItems = _orderState.items
+        .where((i) => i.category == 'Shoes')
+        .toList();
+    final dryCleanItems = _orderState.items
+        .where((i) => i.category == 'Dry Clean')
+        .toList();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: const CustomBackButton(),
-        title: const Text(
-          'Pickup Verification & Pricing',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
+        titleSpacing: 0,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Pickup Verification',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF0F172A),
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              'Order ${_orderState.orderId}',
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.normal,
+                color: Color(0xFF64748B),
+              ),
+            ),
+          ],
         ),
-        centerTitle: true,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF3C7),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFFDE68A)),
+                ),
+                child: const Text(
+                  'IN PROGRESS',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFFB45309),
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -63,60 +153,57 @@ class _PickupVerificationScreenState extends State<PickupVerificationScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Upload images by service category and enter weight to calculate actual price.',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF64748B),
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Estimated Price Banner
+              // Customer Section
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFECFDF5),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFA7F3D0)),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.02),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: const [
-                        Icon(Icons.local_offer_outlined, color: Color(0xFF10B981), size: 20),
-                        SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Estimated price',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF065F46),
-                              ),
-                            ),
-                            SizedBox(height: 2),
-                            Text(
-                              'Based on initial order details',
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Color(0xFF047857),
-                              ),
-                            ),
-                          ],
+                    CircleAvatar(
+                      radius: 26,
+                      backgroundColor: const Color(0xFFEEF2FF),
+                      child: Text(
+                        _orderState.customerInitials,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.primaryColor,
                         ),
-                      ],
+                      ),
                     ),
-                    const Text(
-                      '₹450',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF065F46),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _orderState.customerName,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF0F172A),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _orderState.customerAddress,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFF64748B),
+                              height: 1.3,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -124,9 +211,93 @@ class _PickupVerificationScreenState extends State<PickupVerificationScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Wash & Iron Section Card
+              // Verify & Categorize Items Section Title
+              const Text(
+                'VERIFY & CATEGORIZE ITEMS',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF64748B),
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // 1. Service Row: Add Wash & Fold items (₹80/kg)
+              _buildServiceCategoryCard(
+                categoryTitle: 'Wash & Fold',
+                addLabel: '+ Add Wash & Fold items',
+                rateText: '₹80/kg',
+                icon: Icons.local_laundry_service_outlined,
+                items: washAndFoldItems,
+                onAddTap: () => _openAddItemSheet(
+                  serviceCategory: 'Wash & Fold',
+                  rate: 80.0,
+                  unit: 'kg',
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // 2. Service Row: Add Shoes items (₹200/pair)
+              _buildServiceCategoryCard(
+                categoryTitle: 'Shoes',
+                addLabel: '+ Add Shoes items',
+                rateText: '₹200/pair',
+                icon: Icons.roller_skating_outlined,
+                items: shoesItems,
+                onAddTap: () => _openAddItemSheet(
+                  serviceCategory: 'Shoes',
+                  rate: 200.0,
+                  unit: 'pair',
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // 3. Service Row: Add Dry Clean item (₹150/kg)
+              _buildServiceCategoryCard(
+                categoryTitle: 'Dry Clean',
+                addLabel: '+ Add Dry Clean item',
+                rateText: '₹150/kg',
+                icon: Icons.dry_cleaning_outlined,
+                items: dryCleanItems,
+                onAddTap: () => _openAddItemSheet(
+                  serviceCategory: 'Dry Clean',
+                  rate: 150.0,
+                  unit: 'kg',
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Confirm Pickup & Price Button (Green)
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton.icon(
+                  onPressed: _confirmPickupAndPrice,
+                  icon: const Icon(Icons.check, size: 22, color: Colors.white),
+                  label: const Text(
+                    'Confirm Pickup & Price',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF10B981),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Price Breakdown Section
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
@@ -141,403 +312,259 @@ class _PickupVerificationScreenState extends State<PickupVerificationScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const [
-                        Text(
-                          'Wash & Iron',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF1E293B),
-                          ),
-                        ),
-                        Text(
-                          '₹100/kg',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.primaryColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    
-                    // Item 1
-                    _buildLaundryItemRow(
-                      itemName: 'Item 1',
-                      controller: controller1,
-                      price: '₹${(weight1 * rate).toInt()}',
-                      iconData: Icons.checkroom,
-                      onChanged: (val) {
-                        setState(() {
-                          weight1 = double.tryParse(val) ?? 0.0;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    // Item 2
-                    _buildLaundryItemRow(
-                      itemName: 'Item 2',
-                      controller: controller2,
-                      price: '₹${(weight2 * rate).toInt()}',
-                      iconData: Icons.wb_sunny_outlined,
-                      onChanged: (val) {
-                        setState(() {
-                          weight2 = double.tryParse(val) ?? 0.0;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    // Item 3
-                    _buildLaundryItemRow(
-                      itemName: 'Item 3',
-                      controller: controller3,
-                      price: '₹${(weight3 * rate).toInt()}',
-                      iconData: Icons.layers_outlined,
-                      onChanged: (val) {
-                        setState(() {
-                          weight3 = double.tryParse(val) ?? 0.0;
-                        });
-                      },
-                    ),
-                    
-                    const SizedBox(height: 16),
-                    // Add Item Button
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(Icons.add, size: 18),
-                        label: const Text('+ Add Item'),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppTheme.primaryColor,
-                          side: const BorderSide(color: Color(0xFFE2E8F0)),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const Divider(height: 32, color: Color(0xFFE2E8F0)),
-                    
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Subtotal',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF64748B),
-                          ),
-                        ),
-                        Text(
-                          '$subtotalWeight kg - ₹${subtotalPrice.toInt()}',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF10B981),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Category Action Buttons
-              _buildCategoryAddButton(
-                title: '+ Add Wash & Fold items',
-                rate: '₹80/kg',
-                icon: Icons.dry_cleaning_outlined,
-              ),
-              const SizedBox(height: 12),
-              _buildCategoryAddButton(
-                title: '+ Add Shoes items',
-                rate: '₹200/pair',
-                icon: Icons.nordic_walking_outlined,
-              ),
-              const SizedBox(height: 12),
-              _buildCategoryAddButton(
-                title: '+ Add Dry Clean Items',
-                rate: '₹150/kg',
-                icon: Icons.bubble_chart_outlined,
-                isDashed: true,
-              ),
-              const SizedBox(height: 24),
-
-              // Confirm Button
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.check_circle_outline),
-                  label: const Text(
-                    'Confirm Pickup & Price',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF10B981),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 0,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Price Breakdown Header
-              const Text(
-                'Price Breakdown',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E293B),
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              // Price Details Box
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                ),
-                child: Column(
-                  children: [
-                    _buildBreakdownRow('Wash & Iron', '₹${subtotalPrice.toInt()}'),
-                    const Divider(height: 24, color: Color(0xFFE2E8F0)),
-                    _buildBreakdownRow('Total Actual Price', '₹${subtotalPrice.toInt()}', isBold: true),
-                    const SizedBox(height: 8),
-                    _buildBreakdownRow('Estimated Price', '₹450', isMuted: true),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -5),
-            ),
-          ],
-        ),
-        child: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.white,
-          currentIndex: 1, // Orders tab selected
-          selectedItemColor: AppTheme.primaryColor,
-          unselectedItemColor: const Color(0xFF94A3B8),
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_filled),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.local_shipping_outlined),
-              label: 'Orders',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.account_balance_wallet_outlined),
-              label: 'Earnings',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              label: 'Profile',
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLaundryItemRow({
-    required String itemName,
-    required TextEditingController controller,
-    required String price,
-    required IconData iconData,
-    required ValueChanged<String> onChanged,
-  }) {
-    return Row(
-      children: [
-        // Rounded image/icon placeholder
-        Container(
-          width: 50,
-          height: 50,
-          decoration: BoxDecoration(
-            color: const Color(0xFFF1F5F9),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(iconData, color: const Color(0xFF64748B)),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                itemName,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E293B),
-                ),
-              ),
-              const SizedBox(height: 6),
-              // Editable weight input field
-              Container(
-                width: 80,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: controller,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1E293B),
-                        ),
-                        decoration: const InputDecoration(
-                          isDense: true,
-                          contentPadding: EdgeInsets.symmetric(vertical: 4),
-                          border: InputBorder.none,
-                        ),
-                        onChanged: onChanged,
-                      ),
-                    ),
                     const Text(
-                      'kg',
+                      'Price Breakdown',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF0F172A),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+
+                    if (washAndFoldItems.isNotEmpty)
+                      _buildPriceRow(
+                        label: 'Wash & Fold',
+                        value: '₹${_orderState.washAndFoldTotal.toInt()}',
+                      ),
+
+                    if (shoesItems.isNotEmpty)
+                      _buildPriceRow(
+                        label: 'Shoes',
+                        value: '₹${_orderState.shoesTotal.toInt()}',
+                      ),
+
+                    if (dryCleanItems.isNotEmpty)
+                      _buildPriceRow(
+                        label: 'Dry Clean',
+                        value: '₹${_orderState.dryCleanTotal.toInt()}',
+                      ),
+
+                    if (_orderState.items.isEmpty)
+                      _buildPriceRow(
+                        label: 'No services added',
+                        value: '₹0',
+                        valueColor: const Color(0xFF94A3B8),
+                      ),
+
+                    const Divider(height: 20, color: Color(0xFFF1F5F9)),
+
+                    // Total Actual Price
+                    _buildPriceRow(
+                      label: 'Total Actual Price',
+                      value: '₹${_orderState.totalActualPrice.toInt()}',
+                      labelStyle: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF0F172A),
+                      ),
+                      valueStyle: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF10B981),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+
+                    // Estimated Price
+                    _buildPriceRow(
+                      label: 'Estimated Price',
+                      value: '₹${_orderState.estimatedPrice.toInt()}',
+                      labelStyle: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
                         color: Color(0xFF64748B),
                       ),
+                      valueStyle: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF475569),
+                      ),
                     ),
                   ],
                 ),
               ),
+
+              const SizedBox(height: 24),
             ],
           ),
         ),
-        Text(
-          price,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF10B981),
-          ),
-        ),
-      ],
+      ),
+      bottomNavigationBar: const AppBottomNav(currentIndex: 1),
     );
   }
 
-  Widget _buildCategoryAddButton({
-    required String title,
-    required String rate,
+  Widget _buildServiceCategoryCard({
+    required String categoryTitle,
+    required String addLabel,
+    required String rateText,
     required IconData icon,
-    bool isDashed = false,
+    required List<LaundryItem> items,
+    required VoidCallback onAddTap,
   }) {
-    Widget innerContent = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: isDashed ? null : Border.all(color: const Color(0xFFE2E8F0)),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: items.isNotEmpty
+              ? const Color(0xFF10B981).withOpacity(0.3)
+              : const Color(0xFFE2E8F0),
+          width: 1.2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
+      child: Column(
+        children: [
+          // Header / Add Tap Row
+          InkWell(
+            onTap: onAddTap,
+            borderRadius: BorderRadius.circular(16),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Row(
+                children: [
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEEF2FF),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(icon, color: AppTheme.primaryColor, size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      addLabel,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF0F172A),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      rateText,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF334155),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Render Added Items in this category
+          if (items.isNotEmpty) ...[
+            const Divider(height: 1, color: Color(0xFFF1F5F9)),
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              itemCount: items.length,
+              separatorBuilder: (_, __) =>
+                  const Divider(height: 12, color: Color(0xFFF8FAFC)),
+              itemBuilder: (ctx, index) {
+                final item = items[index];
+                return Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item.title,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF1E293B),
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '${item.quantity % 1 == 0 ? item.quantity.toInt() : item.quantity.toStringAsFixed(1)} ${item.unit} • ₹${item.totalPrice.toInt()}',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF64748B),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline,
+                          color: Color(0xFFEF4444), size: 20),
+                      onPressed: () {
+                        setState(() {
+                          _orderState.items.remove(item);
+                        });
+                      },
+                    ),
+                  ],
+                );
+              },
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPriceRow({
+    required String label,
+    required String value,
+    TextStyle? labelStyle,
+    TextStyle? valueStyle,
+    Color? valueColor,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Icon(icon, color: AppTheme.primaryColor, size: 20),
-              const SizedBox(width: 12),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.primaryColor,
-                ),
-              ),
-            ],
+          Flexible(
+            child: Text(
+              label,
+              style: labelStyle ??
+                  const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF64748B),
+                    fontWeight: FontWeight.w500,
+                  ),
+            ),
           ),
-          Text(
-            rate,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF64748B),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              value,
+              style: valueStyle ??
+                  TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: valueColor ?? const Color(0xFF0F172A),
+                  ),
             ),
           ),
         ],
       ),
-    );
-
-    if (isDashed) {
-      return CustomPaint(
-        painter: DashedBorderPainter(
-          color: AppTheme.primaryColor.withOpacity(0.5),
-          borderRadius: 12,
-          dashWidth: 6,
-          dashSpace: 4,
-        ),
-        child: innerContent,
-      );
-    }
-    
-    return innerContent;
-  }
-
-  Widget _buildBreakdownRow(String label, String val, {bool isBold = false, bool isMuted = false}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: isBold ? 14 : 13,
-            fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
-            color: isMuted ? const Color(0xFF94A3B8) : (isBold ? const Color(0xFF1E293B) : const Color(0xFF64748B)),
-          ),
-        ),
-        Text(
-          val,
-          style: TextStyle(
-            fontSize: isBold ? 14 : 13,
-            fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
-            color: isMuted ? const Color(0xFF94A3B8) : const Color(0xFF1E293B),
-            decoration: isMuted ? TextDecoration.lineThrough : null,
-          ),
-        ),
-      ],
     );
   }
 }

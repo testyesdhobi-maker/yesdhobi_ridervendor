@@ -1,13 +1,76 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:yesdhobi_ridervendor/theme.dart';
 import 'package:yesdhobi_ridervendor/widgets/app_logo.dart';
 import 'package:yesdhobi_ridervendor/widgets/custom_text_field.dart';
-import 'package:yesdhobi_ridervendor/screens/rider_register_step1_screen.dart';
-import 'package:yesdhobi_ridervendor/screens/identity_verification_step1_screen.dart';
 import 'package:yesdhobi_ridervendor/widgets/custom_back_button.dart';
+import 'package:yesdhobi_ridervendor/screens/rider_register_step1_screen.dart';
+import 'package:yesdhobi_ridervendor/screens/rider_dashboard_screen.dart';
+import 'package:yesdhobi_ridervendor/services/rider_auth_service.dart';
+import 'package:yesdhobi_ridervendor/utils/registration_validators.dart';
 
-class RiderLoginScreen extends StatelessWidget {
+class RiderLoginScreen extends StatefulWidget {
   const RiderLoginScreen({super.key});
+
+  @override
+  State<RiderLoginScreen> createState() => _RiderLoginScreenState();
+}
+
+class _RiderLoginScreenState extends State<RiderLoginScreen> {
+  late TextEditingController _mobileController;
+  late TextEditingController _passwordController;
+
+  String? _mobileError;
+  String? _passwordError;
+
+  @override
+  void initState() {
+    super.initState();
+    _mobileController = TextEditingController();
+    _passwordController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _mobileController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _handleLogin() {
+    final mobile = _mobileController.text.trim();
+    final password = _passwordController.text.trim();
+
+    String? mobileErr;
+    String? passErr;
+
+    if (mobile.isEmpty) {
+      mobileErr = 'Please enter registered mobile number';
+    } else if (mobile != '9999999999' &&
+        RegistrationValidators.validateMobileNumber(mobile) != null) {
+      mobileErr = 'Enter a valid 10-digit mobile number';
+    }
+
+    if (password.isEmpty) {
+      passErr = 'Please enter password';
+    }
+
+    setState(() {
+      _mobileError = mobileErr;
+      _passwordError = passErr;
+    });
+
+    if (mobileErr == null && passErr == null) {
+      RiderAuthService.instance.login(mobileNumber: mobile);
+
+      // Flow 2: Successful login always enters normal authenticated rider application
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const RiderDashboardScreen()),
+        (route) => false,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,22 +127,45 @@ class RiderLoginScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              
-              const CustomTextField(
+
+              CustomTextField(
                 label: 'Mobile Number',
                 hint: 'Enter registered number',
+                controller: _mobileController,
+                errorText: _mobileError,
+                keyboardType: TextInputType.phone,
+                maxLength: 10,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                ],
                 suffixIcon: Icons.phone_android,
+                onChanged: (val) {
+                  if (_mobileError != null) {
+                    setState(() {
+                      _mobileError = null;
+                    });
+                  }
+                },
               ),
               const SizedBox(height: 24),
-              
-              const CustomTextField(
+
+              CustomTextField(
                 label: 'Password',
                 hint: '........',
+                controller: _passwordController,
+                errorText: _passwordError,
                 suffixIcon: Icons.lock_outline,
                 isPassword: true,
+                onChanged: (val) {
+                  if (_passwordError != null) {
+                    setState(() {
+                      _passwordError = null;
+                    });
+                  }
+                },
               ),
               const SizedBox(height: 16),
-              
+
               const Text(
                 'Forgot Password?',
                 style: TextStyle(
@@ -88,21 +174,14 @@ class RiderLoginScreen extends StatelessWidget {
                   color: AppTheme.primaryColor,
                 ),
               ),
-              
+
               const Spacer(),
-              
+
               SizedBox(
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const IdentityVerificationStep1Screen(),
-                      ),
-                    );
-                  },
+                  onPressed: _handleLogin,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primaryColor,
                     shape: RoundedRectangleBorder(
@@ -121,7 +200,7 @@ class RiderLoginScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -137,7 +216,10 @@ class RiderLoginScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const RiderRegisterStep1Screen(),
+                          builder: (_) => RiderRegisterStep1Screen(
+                            registrationModel:
+                                RiderAuthService.instance.registrationModel,
+                          ),
                         ),
                       );
                     },
