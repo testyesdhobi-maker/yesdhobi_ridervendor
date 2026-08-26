@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:yesdhobi_ridervendor/theme.dart';
 import 'package:yesdhobi_ridervendor/widgets/custom_back_button.dart';
+import 'package:yesdhobi_ridervendor/models/vendor_order_model.dart';
+import 'package:yesdhobi_ridervendor/screens/vendor_book_rider_screen.dart';
 
 class VendorOrderDetailsScreen extends StatefulWidget {
+  final VendorOrderModel? order;
   final String orderId;
   final String customerName;
   final String customerPhone;
 
   const VendorOrderDetailsScreen({
     super.key,
+    this.order,
     this.orderId = '#YD-9612',
     this.customerName = 'Amit Patel',
     this.customerPhone = '+91 99887 76655',
@@ -20,28 +24,183 @@ class VendorOrderDetailsScreen extends StatefulWidget {
 }
 
 class _VendorOrderDetailsScreenState extends State<VendorOrderDetailsScreen> {
-  bool isPackaged = false;
-  bool isRiderAssigned = false;
+  late VendorOrderModel _order;
+
+  @override
+  void initState() {
+    super.initState();
+    _order = widget.order ??
+        VendorOrderModel(
+          orderId: widget.orderId,
+          customerName: widget.customerName,
+          customerPhone: widget.customerPhone,
+          serviceType: 'Premium Wash & Iron',
+          itemCount: 6,
+          itemsDescription: '6 Items • Premium Wash & Iron',
+        );
+  }
 
   void _handleAssignRider() {
-    setState(() {
-      isRiderAssigned = true;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Rider Zack Colah assigned for pickup.'),
-        backgroundColor: AppTheme.primaryColor,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.55),
+      builder: (ctx) {
+        return Dialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Truck Icon in Light-Blue Circle
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFEEF2FF),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.local_shipping_outlined,
+                    color: Color(0xFF2563EB),
+                    size: 28,
+                  ),
+                ),
+                const SizedBox(height: 18),
+
+                // Title
+                const Text(
+                  'Book a Rider',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF0F172A),
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                // Subtitle with Order ID
+                Text(
+                  'Order ${_order.orderId} is ready for delivery. Tap to book a rider for pickup.',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF64748B),
+                    height: 1.45,
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Customer Info Card
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFFF1F5F9)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'CUSTOMER',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF94A3B8),
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${_order.customerName} · ${_order.itemCount} items',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF0F172A),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Action 1: Book Now
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      Navigator.pop(ctx); // Close dialog
+                      final result = await Navigator.push<bool>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => VendorBookRiderScreen(order: _order),
+                        ),
+                      );
+                      if (result == true || _order.isRiderBooked) {
+                        setState(() {});
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF2563EB),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    child: const Text(
+                      'Book Now',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Action 2: Later
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.pop(ctx); // Close dialog, remain on screen
+                    },
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFF0F172A),
+                      side: const BorderSide(color: Color(0xFFE2E8F0)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    child: const Text(
+                      'Later',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
   void _handleMarkPackaged() {
     setState(() {
-      isPackaged = true;
+      _order.isPackaged = true;
     });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -64,7 +223,7 @@ class _VendorOrderDetailsScreenState extends State<VendorOrderDetailsScreen> {
         elevation: 0,
         leading: const CustomBackButton(),
         title: Text(
-          'Order ${widget.orderId}',
+          'Order ${_order.orderId}',
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -104,13 +263,7 @@ class _VendorOrderDetailsScreenState extends State<VendorOrderDetailsScreen> {
                       ),
                       alignment: Alignment.center,
                       child: Text(
-                        widget.customerName.isNotEmpty
-                            ? widget.customerName
-                                .split(' ')
-                                .map((e) => e[0])
-                                .take(2)
-                                .join()
-                            : 'AP',
+                        _order.customerInitials,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -119,45 +272,50 @@ class _VendorOrderDetailsScreenState extends State<VendorOrderDetailsScreen> {
                       ),
                     ),
                     const SizedBox(width: 14),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.customerName,
-                          style: const TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF0F172A),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _order.customerName,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF0F172A),
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 3),
-                        Text(
-                          widget.customerPhone,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFF64748B),
+                          const SizedBox(height: 3),
+                          Text(
+                            _order.customerPhone,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFF64748B),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
+                    ),
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFEEF2FF),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.phone_rounded,
+                        color: Color(0xFF2563EB),
+                        size: 20,
+                      ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 22),
+              const SizedBox(height: 16),
 
-              // Laundry Items Section
-              const Text(
-                'Laundry Items',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF0F172A),
-                ),
-              ),
-              const SizedBox(height: 12),
-
+              // Order Items List Card
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
@@ -171,12 +329,67 @@ class _VendorOrderDetailsScreenState extends State<VendorOrderDetailsScreen> {
                   ],
                 ),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const Text(
+                      'Order Items (6)',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF0F172A),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    const Divider(color: Color(0xFFF1F5F9)),
                     _buildLaundryItemRow('Cotton Shirt', 'Wash & Iron (x3)'),
-                    const Divider(height: 1, color: Color(0xFFF1F5F9)),
-                    _buildLaundryItemRow('Blue Jeans', 'Wash & Iron (x2)'),
-                    const Divider(height: 1, color: Color(0xFFF1F5F9)),
-                    _buildLaundryItemRow('Winter Jacket', 'Dry Clean (x1)'),
+                    const Divider(color: Color(0xFFF1F5F9)),
+                    _buildLaundryItemRow('Denim Jeans', 'Wash & Iron (x2)'),
+                    const Divider(color: Color(0xFFF1F5F9)),
+                    _buildLaundryItemRow('Bedsheet', 'Wash & Fold (x1)'),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Special Instructions Card
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF3C7).withOpacity(0.4),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFFDE68A)),
+                ),
+                child: const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline_rounded,
+                          color: Color(0xFFD97706),
+                          size: 18,
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          'Special Instructions',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF92400E),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 6),
+                    Text(
+                      'Please use mild starch for cotton shirts and gentle detergent for denim.',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF78350F),
+                        height: 1.4,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -223,18 +436,19 @@ class _VendorOrderDetailsScreenState extends State<VendorOrderDetailsScreen> {
                     ),
                     _buildTrackerStep(
                       title: 'Packaging',
-                      subtitle: isPackaged ? 'Completed' : 'Current step',
-                      stepState: isPackaged
+                      subtitle:
+                          _order.isPackaged ? 'Completed' : 'Current step',
+                      stepState: _order.isPackaged
                           ? TrackerStepState.completed
                           : TrackerStepState.active,
                       showConnector: true,
                     ),
                     _buildTrackerStep(
                       title: 'Picked by Rider',
-                      subtitle: isRiderAssigned
-                          ? 'Assigned to Zack Colah'
+                      subtitle: _order.isRiderBooked
+                          ? 'Assigned to ${_order.assignedRiderName ?? "Zack Colah"}'
                           : 'Not assigned',
-                      stepState: isRiderAssigned
+                      stepState: _order.isRiderBooked
                           ? TrackerStepState.active
                           : TrackerStepState.inactive,
                       showConnector: false,
@@ -261,8 +475,8 @@ class _VendorOrderDetailsScreenState extends State<VendorOrderDetailsScreen> {
                     ),
                   ),
                   child: Text(
-                    isRiderAssigned
-                        ? 'Rider Assigned (Zack Colah)'
+                    _order.isRiderBooked
+                        ? 'Rider Assigned (${_order.assignedRiderName ?? "Zack Colah"})'
                         : 'Assign Nearest Rider',
                     style: const TextStyle(
                       fontSize: 16,
@@ -287,7 +501,9 @@ class _VendorOrderDetailsScreenState extends State<VendorOrderDetailsScreen> {
                     ),
                   ),
                   child: Text(
-                    isPackaged ? 'Packaged & Ready ✓' : 'Mark as Packaged',
+                    _order.isPackaged
+                        ? 'Packaged & Ready ✓'
+                        : 'Mark as Packaged',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
