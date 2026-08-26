@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:yesdhobi_ridervendor/widgets/vendor_bottom_nav.dart';
 import 'package:yesdhobi_ridervendor/screens/vendor_active_orders_screen.dart';
 import 'package:yesdhobi_ridervendor/screens/vendor_order_details_screen.dart';
+import 'package:yesdhobi_ridervendor/screens/vendor_services_rates_screen.dart';
 
 class VendorHomeScreen extends StatefulWidget {
   const VendorHomeScreen({super.key});
@@ -232,6 +233,81 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(height: 20),
+
+              // Services & Rates Card
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const VendorServicesRatesScreen(),
+                    ),
+                  );
+                },
+                borderRadius: BorderRadius.circular(16),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.02),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEEF2FF),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.tune_rounded,
+                          color: Color(0xFF2563EB),
+                          size: 22,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Services & Rates',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF0F172A),
+                              ),
+                            ),
+                            SizedBox(height: 3),
+                            Text(
+                              'Manage your laundry services and unit pricing',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Color(0xFF64748B),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(
+                        Icons.chevron_right_rounded,
+                        color: Color(0xFF94A3B8),
+                        size: 24,
+                      ),
+                    ],
+                  ),
+                ),
               ),
               const SizedBox(height: 24),
 

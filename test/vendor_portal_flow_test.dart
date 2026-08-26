@@ -8,8 +8,14 @@ import 'package:yesdhobi_ridervendor/screens/vendor_order_details_screen.dart';
 import 'package:yesdhobi_ridervendor/screens/vendor_active_orders_screen.dart';
 import 'package:yesdhobi_ridervendor/screens/vendor_earnings_screen.dart';
 import 'package:yesdhobi_ridervendor/screens/vendor_profile_screen.dart';
+import 'package:yesdhobi_ridervendor/screens/vendor_services_rates_screen.dart';
+import 'package:yesdhobi_ridervendor/services/vendor_services_service.dart';
 
 void main() {
+  setUp(() {
+    VendorServicesService.instance.resetToDefaults();
+  });
+
   group('Vendor Portal Complete Flow Tests', () {
     testWidgets('TEST 1: Welcome -> Vendor Login -> Login to Portal -> Star Bright Laundry',
         (WidgetTester tester) async {
@@ -201,6 +207,105 @@ void main() {
       expect(find.text('Welcome back!'), findsOneWidget);
       expect(find.text('VENDOR PORTAL'), findsOneWidget);
       expect(find.text('Login with your registered credentials'), findsOneWidget);
+    });
+
+    testWidgets('TEST 8: Star Bright Laundry -> Services & Rates -> Verify Initial Offerings & Rates',
+        (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(
+        const MaterialApp(home: VendorHomeScreen()),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Services & Rates'), findsOneWidget);
+
+      // Tap Services & Rates card
+      await tester.tap(find.text('Services & Rates'));
+      await tester.pumpAndSettle();
+
+      // Opens Services & Rates screen
+      expect(find.byType(VendorServicesRatesScreen), findsOneWidget);
+      expect(find.text('Manage Your Offerings'), findsOneWidget);
+      expect(find.text('Enable or disable catalog services and set per-unit laundry pricing.'),
+          findsOneWidget);
+
+      // Verify all 4 default services and prices
+      expect(find.text('Wash & Fold'), findsOneWidget);
+      expect(find.text('₹25 / kg'), findsOneWidget);
+
+      expect(find.text('Wash & Iron'), findsOneWidget);
+      expect(find.text('₹45 / kg'), findsOneWidget);
+
+      expect(find.text('Dry Clean'), findsOneWidget);
+      expect(find.text('₹180 / piece'), findsOneWidget);
+
+      expect(find.text('Steam Press Only'), findsOneWidget);
+      expect(find.text('₹15 / piece'), findsOneWidget);
+
+      expect(find.text('+ Add New Custom Service'), findsOneWidget);
+    });
+
+    testWidgets('TEST 9: Toggle Services ON/OFF & Edit Unit Price with Validation',
+        (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(
+        const MaterialApp(home: VendorServicesRatesScreen()),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap price to edit Wash & Fold
+      await tester.tap(find.text('₹25 / kg'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Edit Price: Wash & Fold'), findsOneWidget);
+      expect(find.text('Save Price'), findsOneWidget);
+
+      // Enter new price ₹30
+      final priceField = find.byType(TextField);
+      await tester.enterText(priceField, '30');
+      await tester.tap(find.text('Save Price'));
+      await tester.pumpAndSettle();
+
+      // Verified updated price
+      expect(find.text('₹30 / kg'), findsOneWidget);
+    });
+
+    testWidgets('TEST 10: Add New Custom Service -> Appears in Catalog with Active State',
+        (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(
+        const MaterialApp(home: VendorServicesRatesScreen()),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap + Add New Custom Service
+      await tester.tap(find.text('+ Add New Custom Service'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Add Custom Service'), findsOneWidget);
+      expect(find.text('Add Service'), findsOneWidget);
+
+      // Fill Form
+      final textFields = find.byType(TextField);
+      await tester.enterText(textFields.at(0), 'Premium Blanket Wash');
+      await tester.enterText(textFields.at(1), '250');
+
+      // Submit
+      await tester.tap(find.text('Add Service'));
+      await tester.pumpAndSettle();
+
+      // Verify custom service appears in the catalog list
+      expect(find.text('Premium Blanket Wash'), findsOneWidget);
+      expect(find.text('₹250 / piece'), findsOneWidget);
     });
   });
 }
