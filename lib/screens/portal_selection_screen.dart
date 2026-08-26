@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:yesdhobi_ridervendor/theme.dart';
 import 'package:yesdhobi_ridervendor/widgets/app_logo.dart';
-import 'package:yesdhobi_ridervendor/screens/coming_soon_screen.dart';
+import 'package:yesdhobi_ridervendor/screens/vendor_login_screen.dart';
 import 'package:yesdhobi_ridervendor/screens/rider_register_step1_screen.dart';
 import 'package:yesdhobi_ridervendor/screens/rider_login_screen.dart';
 import 'package:yesdhobi_ridervendor/services/rider_auth_service.dart';
@@ -115,7 +115,7 @@ class _PortalSelectionScreenState extends State<PortalSelectionScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (_) => const ComingSoonScreen()),
+                            builder: (_) => const VendorLoginScreen()),
                       );
                     } else {
                       // Navigate directly to Personal Details (Step 1)
