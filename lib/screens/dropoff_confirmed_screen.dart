@@ -3,6 +3,7 @@ import 'package:yesdhobi_ridervendor/theme.dart';
 import 'package:yesdhobi_ridervendor/models/order_flow_model.dart';
 import 'package:yesdhobi_ridervendor/widgets/app_bottom_nav.dart';
 import 'package:yesdhobi_ridervendor/screens/rider_dashboard_screen.dart';
+import 'package:yesdhobi_ridervendor/screens/rider_earnings_screen.dart';
 
 class DropoffConfirmedScreen extends StatelessWidget {
   final OrderFlowState? orderState;
@@ -222,13 +223,10 @@ class DropoffConfirmedScreen extends StatelessWidget {
                         height: 54,
                         child: OutlinedButton(
                           onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content:
-                                    const Text('Navigating to Rider Earnings...'),
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10)),
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const RiderEarningsScreen(),
                               ),
                             );
                           },

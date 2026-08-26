@@ -6,6 +6,7 @@ import 'package:yesdhobi_ridervendor/widgets/custom_text_field.dart';
 import 'package:yesdhobi_ridervendor/widgets/custom_back_button.dart';
 import 'package:yesdhobi_ridervendor/screens/rider_register_step1_screen.dart';
 import 'package:yesdhobi_ridervendor/screens/rider_dashboard_screen.dart';
+import 'package:yesdhobi_ridervendor/screens/identity_verification_screen.dart';
 import 'package:yesdhobi_ridervendor/services/rider_auth_service.dart';
 import 'package:yesdhobi_ridervendor/utils/registration_validators.dart';
 
@@ -63,12 +64,22 @@ class _RiderLoginScreenState extends State<RiderLoginScreen> {
     if (mobileErr == null && passErr == null) {
       RiderAuthService.instance.login(mobileNumber: mobile);
 
-      // Flow 2: Successful login always enters normal authenticated rider application
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const RiderDashboardScreen()),
-        (route) => false,
-      );
+      // Check if selfie verification is already completed
+      if (RiderAuthService.instance.isSelfieVerified) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const RiderDashboardScreen()),
+          (route) => false,
+        );
+      } else {
+        // Required flow: Rider Login -> Identity Verification -> Selfie Confirmation -> Rider Dashboard
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const IdentityVerificationScreen(),
+          ),
+        );
+      }
     }
   }
 
@@ -76,6 +87,7 @@ class _RiderLoginScreenState extends State<RiderLoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -103,140 +115,178 @@ class _RiderLoginScreenState extends State<RiderLoginScreen> {
         centerTitle: true,
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 16),
-              const Text(
-                'Rider Partner Login',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E293B),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight - 32.0,
                 ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Access your driver portal to view daily earnings and pending laundry orders.',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF64748B),
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 32),
+                child: IntrinsicHeight(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Rider Partner Login',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1E293B),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Access your driver portal to view daily earnings and pending laundry orders.',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFF64748B),
+                          height: 1.5,
+                        ),
+                      ),
+                      const SizedBox(height: 28),
 
-              CustomTextField(
-                label: 'Mobile Number',
-                hint: 'Enter registered number',
-                controller: _mobileController,
-                errorText: _mobileError,
-                keyboardType: TextInputType.phone,
-                maxLength: 10,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                ],
-                suffixIcon: Icons.phone_android,
-                onChanged: (val) {
-                  if (_mobileError != null) {
-                    setState(() {
-                      _mobileError = null;
-                    });
-                  }
-                },
-              ),
-              const SizedBox(height: 24),
+                      CustomTextField(
+                        label: 'Mobile Number',
+                        hint: 'Enter registered number',
+                        controller: _mobileController,
+                        errorText: _mobileError,
+                        keyboardType: TextInputType.phone,
+                        maxLength: 10,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        suffixIcon: Icons.phone_android,
+                        onChanged: (val) {
+                          if (_mobileError != null) {
+                            setState(() {
+                              _mobileError = null;
+                            });
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 20),
 
-              CustomTextField(
-                label: 'Password',
-                hint: '........',
-                controller: _passwordController,
-                errorText: _passwordError,
-                suffixIcon: Icons.lock_outline,
-                isPassword: true,
-                onChanged: (val) {
-                  if (_passwordError != null) {
-                    setState(() {
-                      _passwordError = null;
-                    });
-                  }
-                },
-              ),
-              const SizedBox(height: 16),
+                      CustomTextField(
+                        label: 'Password',
+                        hint: '........',
+                        controller: _passwordController,
+                        errorText: _passwordError,
+                        suffixIcon: Icons.lock_outline,
+                        isPassword: true,
+                        onChanged: (val) {
+                          if (_passwordError != null) {
+                            setState(() {
+                              _passwordError = null;
+                            });
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 14),
 
-              const Text(
-                'Forgot Password?',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.primaryColor,
-                ),
-              ),
-
-              const Spacer(),
-
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: _handleLogin,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    'Login to Portal',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    'Become a new partner? ',
-                    style: TextStyle(
-                      color: Color(0xFF64748B),
-                      fontSize: 14,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => RiderRegisterStep1Screen(
-                            registrationModel:
-                                RiderAuthService.instance.registrationModel,
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton(
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text(
+                                    'Password reset link sent to your registered mobile.'),
+                                backgroundColor: AppTheme.primaryColor,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            'Forgot Password?',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.primaryColor,
+                            ),
                           ),
                         ),
-                      );
-                    },
-                    child: const Text(
-                      'Register',
-                      style: TextStyle(
-                        color: AppTheme.primaryColor,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
                       ),
-                    ),
+
+                      const Spacer(),
+                      const SizedBox(height: 24),
+
+                      SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: ElevatedButton(
+                          onPressed: _handleLogin,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primaryColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: const Text(
+                            'Login to Portal',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      Center(
+                        child: Wrap(
+                          alignment: WrapAlignment.center,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            const Text(
+                              'Become a new partner? ',
+                              style: TextStyle(
+                                color: Color(0xFF64748B),
+                                fontSize: 14,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => RiderRegisterStep1Screen(
+                                      registrationModel:
+                                          RiderAuthService.instance.registrationModel,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: const Text(
+                                'Register',
+                                style: TextStyle(
+                                  color: AppTheme.primaryColor,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
                   ),
-                ],
+                ),
               ),
-              const SizedBox(height: 24),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );

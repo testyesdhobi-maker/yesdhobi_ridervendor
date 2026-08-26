@@ -15,10 +15,21 @@ class RiderAuthService {
   RiderRegistrationModel _currentRegistration = RiderRegistrationModel();
   RiderOnboardingStatus _status = RiderOnboardingStatus.notStarted;
   bool _isLoggedIn = false;
+  bool _isSelfieVerified = false;
+  String? _selfieImagePath;
 
   RiderRegistrationModel get registrationModel => _currentRegistration;
   RiderOnboardingStatus get onboardingStatus => _status;
   bool get isLoggedIn => _isLoggedIn;
+  bool get isSelfieVerified => _isSelfieVerified;
+  String? get selfieImagePath => _selfieImagePath;
+
+  void setSelfieVerified(bool verified, {String? imagePath}) {
+    _isSelfieVerified = verified;
+    if (imagePath != null) {
+      _selfieImagePath = imagePath;
+    }
+  }
 
   void setOnboardingStatus(RiderOnboardingStatus status) {
     _status = status;
