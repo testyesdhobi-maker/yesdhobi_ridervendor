@@ -3,6 +3,9 @@ import 'package:yesdhobi_ridervendor/theme.dart';
 import 'package:yesdhobi_ridervendor/widgets/app_logo.dart';
 import 'package:yesdhobi_ridervendor/widgets/app_bottom_nav.dart';
 import 'package:yesdhobi_ridervendor/screens/order_request_screen.dart';
+import 'package:yesdhobi_ridervendor/models/pickup_request_notification_model.dart';
+import 'package:yesdhobi_ridervendor/services/rider_notification_service.dart';
+import 'package:yesdhobi_ridervendor/widgets/incoming_pickup_request_dialog.dart';
 
 class RiderDashboardScreen extends StatefulWidget {
   const RiderDashboardScreen({super.key});
@@ -13,6 +16,30 @@ class RiderDashboardScreen extends StatefulWidget {
 
 class _RiderDashboardScreenState extends State<RiderDashboardScreen> {
   bool isOnline = true;
+
+  @override
+  void initState() {
+    super.initState();
+    RiderNotificationService.instance.activeIncomingRequest
+        .addListener(_onIncomingRequest);
+  }
+
+  @override
+  void dispose() {
+    RiderNotificationService.instance.activeIncomingRequest
+        .removeListener(_onIncomingRequest);
+    super.dispose();
+  }
+
+  void _onIncomingRequest() {
+    final req =
+        RiderNotificationService.instance.activeIncomingRequest.value;
+    if (req != null &&
+        req.status == PickupRequestStatus.offered &&
+        mounted) {
+      IncomingPickupRequestDialog.show(context, request: req);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -131,8 +158,95 @@ class _RiderDashboardScreenState extends State<RiderDashboardScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 32),
-              
+              const SizedBox(height: 20),
+
+              // Incoming Pickup Request Simulator Banner
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF2563EB), Color(0xFF1D4ED8)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF2563EB).withOpacity(0.22),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.notifications_active_rounded,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Incoming Pickup Requests',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            'Tap Test Alert to simulate incoming pickup',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.white70,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        final sampleRequest =
+                            PickupRequestNotificationModel.createDefaultSample();
+                        RiderNotificationService.instance
+                            .triggerIncomingPickup(sampleRequest);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: const Color(0xFF2563EB),
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text(
+                        'Test Alert',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 28),
+
               // Active Orders
               const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
