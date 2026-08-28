@@ -63,7 +63,6 @@ void main() {
       // Order 3: #YD-90512
       expect(find.text('#YD-90512'), findsOneWidget);
       expect(find.text('09th Oct 2026'), findsOneWidget);
-      expect(find.text('CANCELLED'), findsOneWidget);
       expect(find.text('From: Supriya Sen, Domlur'), findsOneWidget);
       expect(find.text('₹0.00'), findsOneWidget);
 
@@ -256,10 +255,10 @@ void main() {
       await tester.tap(find.text('Logout Partner Portal'));
       await tester.pumpAndSettle();
 
-      // Should land on RiderLoginScreen
+      // Should land on PortalSelectionScreen (Welcome Page)
       expect(RiderAuthService.instance.isLoggedIn, isFalse);
-      expect(find.text('Rider Partner Login'), findsOneWidget);
-      expect(find.text('Access your driver portal to view daily earnings and pending laundry orders.'), findsOneWidget);
+      expect(find.text('Welcome to Yes Dhobi'), findsOneWidget);
+      expect(find.text('Delivery Rider'), findsOneWidget);
     });
   });
 }

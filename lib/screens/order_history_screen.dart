@@ -312,50 +312,24 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Header: ID and Status badge
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          // Header: ID and Date
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    order.orderId,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF0F172A),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    order.date,
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      color: Color(0xFF64748B),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: isCompleted
-                                      ? const Color(0xFFECFDF5)
-                                      : const Color(0xFFFEF2F2),
-                                  borderRadius: BorderRadius.circular(8),
+                              Text(
+                                order.orderId,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF0F172A),
                                 ),
-                                child: Text(
-                                  order.status,
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: isCompleted
-                                        ? const Color(0xFF10B981)
-                                        : const Color(0xFFEF4444),
-                                    letterSpacing: 0.5,
-                                  ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                order.date,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B),
                                 ),
                               ),
                             ],

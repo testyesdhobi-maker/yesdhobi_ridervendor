@@ -2,7 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:yesdhobi_ridervendor/models/pickup_request_notification_model.dart';
-import 'package:yesdhobi_ridervendor/screens/order_request_screen.dart';
+import 'package:yesdhobi_ridervendor/screens/rider_order_details_screen.dart';
+import 'package:yesdhobi_ridervendor/services/rider_auth_service.dart';
 
 class RiderNotificationService with WidgetsBindingObserver {
   static final RiderNotificationService _instance =
@@ -110,6 +111,11 @@ class RiderNotificationService with WidgetsBindingObserver {
 
   Future<void> triggerIncomingPickup(
       PickupRequestNotificationModel request) async {
+    // Offline check: do not offer new pickup requests to offline riders
+    if (!RiderAuthService.instance.isOnline) {
+      return;
+    }
+
     // Deduplication check
     if (_processedRequestIds.contains(request.requestId) &&
         request.status != PickupRequestStatus.offered) {
@@ -206,7 +212,7 @@ class RiderNotificationService with WidgetsBindingObserver {
     if (navContext != null) {
       Navigator.of(navContext).push(
         MaterialPageRoute(
-          builder: (_) => OrderRequestScreen(orderState: orderState),
+          builder: (_) => RiderOrderDetailsScreen(orderState: orderState),
         ),
       );
     }

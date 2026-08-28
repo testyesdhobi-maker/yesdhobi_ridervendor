@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:yesdhobi_ridervendor/theme.dart';
 import 'package:yesdhobi_ridervendor/widgets/custom_text_field.dart';
+import 'package:yesdhobi_ridervendor/widgets/custom_back_button.dart';
 import 'package:yesdhobi_ridervendor/screens/vendor_home_screen.dart';
 import 'package:yesdhobi_ridervendor/utils/registration_validators.dart';
 
@@ -62,9 +63,14 @@ class _VendorLoginScreenState extends State<VendorLoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF8FAFC),
+        elevation: 0,
+        leading: const CustomBackButton(),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

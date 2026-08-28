@@ -7,7 +7,7 @@ import 'package:yesdhobi_ridervendor/screens/rider_register_step1_screen.dart';
 import 'package:yesdhobi_ridervendor/screens/rider_register_step2_screen.dart';
 import 'package:yesdhobi_ridervendor/screens/rider_register_step3_screen.dart';
 import 'package:yesdhobi_ridervendor/screens/application_review_screen.dart';
-import 'package:yesdhobi_ridervendor/screens/order_request_screen.dart';
+import 'package:yesdhobi_ridervendor/screens/rider_order_details_screen.dart';
 import 'package:yesdhobi_ridervendor/screens/dropoff_confirmed_screen.dart';
 
 void main() {
@@ -93,11 +93,11 @@ void main() {
     final orderState = OrderFlowState();
     await tester.pumpWidget(
       MaterialApp(
-        home: OrderRequestScreen(orderState: orderState),
+        home: RiderOrderDetailsScreen(orderState: orderState),
       ),
     );
-    expect(find.text('Order Request'), findsOneWidget);
-    expect(find.text('Accept Order Request'), findsOneWidget);
+    expect(find.text('Order Details'), findsOneWidget);
+    expect(find.text('Navigate to Pickup Location'), findsOneWidget);
 
     await tester.pumpWidget(
       MaterialApp(

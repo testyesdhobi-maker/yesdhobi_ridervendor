@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:yesdhobi_ridervendor/theme.dart';
 import 'package:yesdhobi_ridervendor/widgets/app_logo.dart';
 import 'package:yesdhobi_ridervendor/widgets/app_bottom_nav.dart';
-import 'package:yesdhobi_ridervendor/screens/order_request_screen.dart';
+import 'package:yesdhobi_ridervendor/screens/rider_order_details_screen.dart';
+import 'package:yesdhobi_ridervendor/services/rider_auth_service.dart';
 import 'package:yesdhobi_ridervendor/models/pickup_request_notification_model.dart';
 import 'package:yesdhobi_ridervendor/services/rider_notification_service.dart';
 import 'package:yesdhobi_ridervendor/widgets/incoming_pickup_request_dialog.dart';
@@ -15,7 +16,7 @@ class RiderDashboardScreen extends StatefulWidget {
 }
 
 class _RiderDashboardScreenState extends State<RiderDashboardScreen> {
-  bool isOnline = true;
+  bool get isOnline => RiderAuthService.instance.isOnline;
 
   @override
   void initState() {
@@ -39,6 +40,75 @@ class _RiderDashboardScreenState extends State<RiderDashboardScreen> {
         mounted) {
       IncomingPickupRequestDialog.show(context, request: req);
     }
+  }
+
+  void _toggleOnlineStatus() {
+    final bool currentStatus = RiderAuthService.instance.isOnline;
+    if (currentStatus) {
+      // Going ONLINE -> OFFLINE with active order check
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Text(
+            'Go Offline?',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              color: Color(0xFF0F172A),
+            ),
+          ),
+          content: const Text(
+            'You will stop receiving new pickup requests, but your current order will remain active.',
+            style: TextStyle(
+              fontSize: 14,
+              color: Color(0xFF64748B),
+              height: 1.4,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF64748B),
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                setState(() {
+                  RiderAuthService.instance.setOnline(false);
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFEF4444),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                elevation: 0,
+              ),
+              child: const Text(
+                'Go Offline',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      RiderAuthService.instance.setOnline(true);
+    });
   }
 
   @override
@@ -66,50 +136,6 @@ class _RiderDashboardScreenState extends State<RiderDashboardScreen> {
             color: Color(0xFF1E293B),
           ),
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  isOnline = !isOnline;
-                });
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: isOnline ? const Color(0xFF10B981) : const Color(0xFF94A3B8),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Text(
-                      isOnline ? 'Online' : 'Offline',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: isOnline ? const Color(0xFF10B981) : const Color(0xFF64748B),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      width: 10,
-                      height: 10,
-                      decoration: BoxDecoration(
-                        color: isOnline ? const Color(0xFF10B981) : const Color(0xFF94A3B8),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -117,21 +143,80 @@ class _RiderDashboardScreenState extends State<RiderDashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Rider Dashboard',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E293B),
-                ),
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                'Manage your status and available deliveries',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF64748B),
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text(
+                          'Rider Dashboard',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1E293B),
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Manage your status and available deliveries',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF64748B),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            'Rider Availability',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF64748B),
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            isOnline ? 'ON' : 'OFF',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: isOnline
+                                  ? const Color(0xFF10B981)
+                                  : const Color(0xFF64748B),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(width: 4),
+                      Transform.scale(
+                        scale: 0.85,
+                        child: Switch.adaptive(
+                          value: isOnline,
+                          activeColor: const Color(0xFF10B981),
+                          activeTrackColor: const Color(0xFFD1FAE5),
+                          inactiveThumbColor: const Color(0xFF94A3B8),
+                          inactiveTrackColor: const Color(0xFFE2E8F0),
+                          onChanged: (val) {
+                            setState(() {
+                              RiderAuthService.instance.setOnline(val);
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
               const SizedBox(height: 24),
               
@@ -302,7 +387,6 @@ class _RiderDashboardScreenState extends State<RiderDashboardScreen> {
                 name: 'Rahul Sharma',
                 address: 'B-402, Shanti Vihar, Sector 45',
                 items: '12-15 items',
-                status: 'Delivered',
                 timeInfo: 'Completed: 14 Mar • 10:42 AM',
                 amount: '₹120',
               ),
@@ -311,7 +395,6 @@ class _RiderDashboardScreenState extends State<RiderDashboardScreen> {
                 name: 'Priya Patel',
                 address: 'Flat 12A, Royal Crest Towers, HSR',
                 items: '8-10 items',
-                status: 'Completed',
                 timeInfo: 'Completed: 14 Mar • 11:15 AM',
                 amount: '₹95',
               ),
@@ -320,7 +403,6 @@ class _RiderDashboardScreenState extends State<RiderDashboardScreen> {
                 name: 'Amit Verma',
                 address: 'No. 45, Ground Floor, 5th Cross, Indiranagar',
                 items: '20+ items',
-                status: 'Delivered',
                 timeInfo: 'Completed: 13 Mar • 6:20 PM',
                 amount: '₹185',
               ),
@@ -499,7 +581,7 @@ class _RiderDashboardScreenState extends State<RiderDashboardScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => const OrderRequestScreen(),
+                                builder: (_) => const RiderOrderDetailsScreen(),
                               ),
                             );
                           },
@@ -537,7 +619,6 @@ class _RiderDashboardScreenState extends State<RiderDashboardScreen> {
     required String name,
     required String address,
     required String items,
-    required String status,
     required String timeInfo,
     required String amount,
   }) {
@@ -557,34 +638,13 @@ class _RiderDashboardScreenState extends State<RiderDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                name,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E293B),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFECFDF5),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFF10B981).withOpacity(0.5)),
-                ),
-                child: Text(
-                  status,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF10B981),
-                  ),
-                ),
-              ),
-            ],
+          Text(
+            name,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1E293B),
+            ),
           ),
           const SizedBox(height: 12),
           Row(

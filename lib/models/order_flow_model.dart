@@ -55,6 +55,10 @@ class OrderFlowState {
   String customerOtp;
   String vendorOtp;
   String dropoffTime;
+  double? pickupLatitude;
+  double? pickupLongitude;
+  double? vendorLatitude;
+  double? vendorLongitude;
 
   OrderFlowState({
     this.orderId = '#YD-90823',
@@ -81,6 +85,10 @@ class OrderFlowState {
     this.customerOtp = '5812',
     this.vendorOtp = '5812',
     this.dropoffTime = '10:45 AM',
+    this.pickupLatitude = 12.9352,
+    this.pickupLongitude = 77.6245,
+    this.vendorLatitude = 12.9121,
+    this.vendorLongitude = 77.6446,
   }) : items = items ?? [];
 
   double get totalWeight =>

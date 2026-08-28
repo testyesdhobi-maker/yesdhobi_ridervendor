@@ -15,6 +15,7 @@ class VendorOrderModel {
   final String estimatedWeightText;
   bool isPackaged;
   bool isRiderBooked;
+  bool isCompleted;
   String? assignedRiderName;
   String deliveryOption; // 'Standard' or 'Express'
   String? riderNotes;
@@ -37,6 +38,7 @@ class VendorOrderModel {
     this.estimatedWeightText = '~3.5 kg',
     this.isPackaged = false,
     this.isRiderBooked = false,
+    this.isCompleted = false,
     this.assignedRiderName,
     this.deliveryOption = 'Standard',
     this.riderNotes,

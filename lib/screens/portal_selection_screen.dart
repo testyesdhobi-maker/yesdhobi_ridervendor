@@ -151,12 +151,12 @@ class _PortalSelectionScreenState extends State<PortalSelectionScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Returning rider login link
+              // Returning user login link
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                    'Already registered? ',
+                    'Already a user? ',
                     style: TextStyle(
                       color: Color(0xFF64748B),
                       fontSize: 14,
@@ -164,14 +164,22 @@ class _PortalSelectionScreenState extends State<PortalSelectionScreen> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const RiderLoginScreen()),
-                      );
+                      if (selectedPortal == 'Vendor') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const VendorLoginScreen()),
+                        );
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const RiderLoginScreen()),
+                        );
+                      }
                     },
                     child: const Text(
-                      'Login here',
+                      'Log in',
                       style: TextStyle(
                         color: AppTheme.primaryColor,
                         fontSize: 14,

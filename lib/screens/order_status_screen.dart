@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:yesdhobi_ridervendor/theme.dart';
 import 'package:yesdhobi_ridervendor/models/order_flow_model.dart';
 import 'package:yesdhobi_ridervendor/widgets/custom_back_button.dart';
@@ -98,16 +99,11 @@ class OrderStatusScreen extends StatelessWidget {
                 width: double.infinity,
                 height: 54,
                 child: OutlinedButton.icon(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text('Opening Google Maps navigation...'),
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                      ),
-                    );
-                  },
+                  onPressed: () => _launchVendorMaps(
+                    state.vendorLatitude,
+                    state.vendorLongitude,
+                    state.vendorAddress,
+                  ),
                   icon: const Icon(
                     Icons.navigation_outlined,
                     size: 20,
@@ -180,5 +176,30 @@ class OrderStatusScreen extends StatelessWidget {
       ),
       bottomNavigationBar: const AppBottomNav(currentIndex: 1),
     );
+  }
+
+  Future<void> _launchVendorMaps(
+      double? lat, double? lng, String address) async {
+    Uri uri;
+    if (lat != null && lng != null) {
+      uri = Uri.parse(
+          'https://www.google.com/maps/dir/?api=1&destination=$lat,$lng');
+    } else if (address.isNotEmpty) {
+      final encoded = Uri.encodeComponent(address);
+      uri = Uri.parse(
+          'https://www.google.com/maps/dir/?api=1&destination=$encoded');
+    } else {
+      return;
+    }
+
+    try {
+      final bool launched =
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!launched) {
+        await launchUrl(uri, mode: LaunchMode.platformDefault);
+      }
+    } catch (e) {
+      debugPrint('Could not launch maps: $e');
+    }
   }
 }

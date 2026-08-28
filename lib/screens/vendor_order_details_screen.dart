@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:yesdhobi_ridervendor/theme.dart';
 import 'package:yesdhobi_ridervendor/widgets/custom_back_button.dart';
 import 'package:yesdhobi_ridervendor/models/vendor_order_model.dart';
-import 'package:yesdhobi_ridervendor/screens/vendor_book_rider_screen.dart';
+import 'package:yesdhobi_ridervendor/services/vendor_order_service.dart';
+import 'package:yesdhobi_ridervendor/screens/vendor_rider_booked_screen.dart';
+import 'package:yesdhobi_ridervendor/widgets/vendor_persistent_otp_banner.dart';
 
 class VendorOrderDetailsScreen extends StatefulWidget {
   final VendorOrderModel? order;
@@ -30,6 +32,7 @@ class _VendorOrderDetailsScreenState extends State<VendorOrderDetailsScreen> {
   void initState() {
     super.initState();
     _order = widget.order ??
+        VendorOrderService.instance.getOrderById(widget.orderId) ??
         VendorOrderModel(
           orderId: widget.orderId,
           customerName: widget.customerName,
@@ -40,11 +43,23 @@ class _VendorOrderDetailsScreenState extends State<VendorOrderDetailsScreen> {
         );
   }
 
-  void _handleAssignRider() {
+  void _handleMarkPackaged() {
+    if (_order.isPackaged && _order.isRiderBooked) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => VendorRiderBookedScreen(order: _order),
+        ),
+      ).then((_) {
+        setState(() {});
+      });
+      return;
+    }
+
     showDialog(
       context: context,
       barrierColor: Colors.black.withOpacity(0.55),
-      builder: (ctx) {
+      builder: (dialogCtx) {
         return Dialog(
           backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
@@ -57,7 +72,7 @@ class _VendorOrderDetailsScreenState extends State<VendorOrderDetailsScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Truck Icon in Light-Blue Circle
+                // Package & Truck Icon in Light-Blue Circle
                 Container(
                   width: 56,
                   height: 56,
@@ -66,7 +81,7 @@ class _VendorOrderDetailsScreenState extends State<VendorOrderDetailsScreen> {
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
-                    Icons.local_shipping_outlined,
+                    Icons.inventory_2_outlined,
                     color: Color(0xFF2563EB),
                     size: 28,
                   ),
@@ -75,18 +90,18 @@ class _VendorOrderDetailsScreenState extends State<VendorOrderDetailsScreen> {
 
                 // Title
                 const Text(
-                  'Book a Rider',
+                  'Mark as Packed & Assign Rider?',
                   style: TextStyle(
-                    fontSize: 22,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF0F172A),
                   ),
                 ),
                 const SizedBox(height: 8),
 
-                // Subtitle with Order ID
+                // Subtitle
                 Text(
-                  'Order ${_order.orderId} is ready for delivery. Tap to book a rider for pickup.',
+                  'Order ${_order.orderId} will be marked as packed, the nearest rider (Zack Colah) will be automatically assigned, and a pickup OTP will be generated.',
                   style: const TextStyle(
                     fontSize: 14,
                     color: Color(0xFF64748B),
@@ -95,7 +110,7 @@ class _VendorOrderDetailsScreenState extends State<VendorOrderDetailsScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // Customer Info Card
+                // Summary Pill
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(14),
@@ -108,7 +123,7 @@ class _VendorOrderDetailsScreenState extends State<VendorOrderDetailsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'CUSTOMER',
+                        'CUSTOMER & ITEMS',
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
@@ -118,7 +133,7 @@ class _VendorOrderDetailsScreenState extends State<VendorOrderDetailsScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${_order.customerName} · ${_order.itemCount} items',
+                        '${_order.customerName} · ${_order.itemCount} items (${_order.serviceType})',
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
@@ -130,22 +145,28 @@ class _VendorOrderDetailsScreenState extends State<VendorOrderDetailsScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                // Action 1: Book Now
+                // Action 1: Confirm & Assign
                 SizedBox(
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton(
-                    onPressed: () async {
-                      Navigator.pop(ctx); // Close dialog
-                      final result = await Navigator.push<bool>(
+                    onPressed: () {
+                      Navigator.pop(dialogCtx); // Close dialog
+                      final updated = VendorOrderService.instance
+                          .markAsPackagedAndAssignRider(_order);
+                      setState(() {
+                        _order = updated;
+                      });
+
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => VendorBookRiderScreen(order: _order),
+                          builder: (_) =>
+                              VendorRiderBookedScreen(order: _order),
                         ),
-                      );
-                      if (result == true || _order.isRiderBooked) {
+                      ).then((_) {
                         setState(() {});
-                      }
+                      });
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF2563EB),
@@ -156,7 +177,7 @@ class _VendorOrderDetailsScreenState extends State<VendorOrderDetailsScreen> {
                       ),
                     ),
                     child: const Text(
-                      'Book Now',
+                      'Confirm & Assign Rider',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -166,13 +187,13 @@ class _VendorOrderDetailsScreenState extends State<VendorOrderDetailsScreen> {
                 ),
                 const SizedBox(height: 12),
 
-                // Action 2: Later
+                // Action 2: Cancel
                 SizedBox(
                   width: double.infinity,
                   height: 50,
                   child: OutlinedButton(
                     onPressed: () {
-                      Navigator.pop(ctx); // Close dialog, remain on screen
+                      Navigator.pop(dialogCtx);
                     },
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFF0F172A),
@@ -182,7 +203,7 @@ class _VendorOrderDetailsScreenState extends State<VendorOrderDetailsScreen> {
                       ),
                     ),
                     child: const Text(
-                      'Later',
+                      'Cancel',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -195,22 +216,6 @@ class _VendorOrderDetailsScreenState extends State<VendorOrderDetailsScreen> {
           ),
         );
       },
-    );
-  }
-
-  void _handleMarkPackaged() {
-    setState(() {
-      _order.isPackaged = true;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Order marked as Packaged & Ready for Pickup.'),
-        backgroundColor: const Color(0xFF10B981),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
     );
   }
 
@@ -435,7 +440,7 @@ class _VendorOrderDetailsScreenState extends State<VendorOrderDetailsScreen> {
                       showConnector: true,
                     ),
                     _buildTrackerStep(
-                      title: 'Packaging',
+                      title: 'Packing',
                       subtitle:
                           _order.isPackaged ? 'Completed' : 'Current step',
                       stepState: _order.isPackaged
@@ -458,42 +463,16 @@ class _VendorOrderDetailsScreenState extends State<VendorOrderDetailsScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Action Buttons
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: OutlinedButton(
-                  onPressed: _handleAssignRider,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF2563EB),
-                    side: const BorderSide(
-                      color: Color(0xFF2563EB),
-                      width: 1.5,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                  child: Text(
-                    _order.isRiderBooked
-                        ? 'Rider Assigned (${_order.assignedRiderName ?? "Zack Colah"})'
-                        : 'Assign Nearest Rider',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-
+              // Action Button (Single merged flow for Packing & Nearest Rider Assignment)
               SizedBox(
                 width: double.infinity,
                 height: 52,
                 child: ElevatedButton(
                   onPressed: _handleMarkPackaged,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2563EB),
+                    backgroundColor: _order.isRiderBooked
+                        ? const Color(0xFF10B981)
+                        : const Color(0xFF2563EB),
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
@@ -501,9 +480,11 @@ class _VendorOrderDetailsScreenState extends State<VendorOrderDetailsScreen> {
                     ),
                   ),
                   child: Text(
-                    _order.isPackaged
-                        ? 'Packaged & Ready ✓'
-                        : 'Mark as Packaged',
+                    _order.isRiderBooked
+                        ? 'Rider Assigned • View Pickup OTP (${_order.pickupOtp})'
+                        : (_order.isPackaged
+                            ? 'Packed • Assign Rider'
+                            : 'Mark as Packed'),
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

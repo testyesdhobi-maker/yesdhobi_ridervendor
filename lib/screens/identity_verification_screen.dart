@@ -6,6 +6,8 @@ import 'package:yesdhobi_ridervendor/widgets/dashed_border_painter.dart';
 import 'package:yesdhobi_ridervendor/utils/image_picker_helper.dart';
 import 'package:yesdhobi_ridervendor/screens/selfie_confirmation_screen.dart';
 
+import 'package:yesdhobi_ridervendor/screens/front_camera_selfie_screen.dart';
+
 class IdentityVerificationScreen extends StatefulWidget {
   const IdentityVerificationScreen({super.key});
 
@@ -19,37 +21,12 @@ class _IdentityVerificationScreenState
   bool _isLoading = false;
 
   Future<void> _handleTakeSelfie() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    final result = await ImagePickerHelper.takeSelfie(context);
-
-    if (!mounted) return;
-    setState(() {
-      _isLoading = false;
-    });
-
-    if (result.isSuccess && result.path != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => SelfieConfirmationScreen(imagePath: result.path!),
-        ),
-      );
-    } else if (result.errorMessage != null &&
-        result.errorMessage != 'No photo captured') {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result.errorMessage!),
-          backgroundColor: const Color(0xFFEF4444),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      );
-    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const FrontCameraSelfieScreen(),
+      ),
+    );
   }
 
   Future<void> _handleUploadGallery() async {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:yesdhobi_ridervendor/theme.dart';
 import 'package:yesdhobi_ridervendor/services/rider_auth_service.dart';
 import 'package:yesdhobi_ridervendor/widgets/app_bottom_nav.dart';
-import 'package:yesdhobi_ridervendor/screens/rider_login_screen.dart';
+import 'package:yesdhobi_ridervendor/screens/portal_selection_screen.dart';
 
 class RiderProfileScreen extends StatelessWidget {
   const RiderProfileScreen({super.key});
@@ -11,7 +11,7 @@ class RiderProfileScreen extends StatelessWidget {
     RiderAuthService.instance.logout();
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (_) => const RiderLoginScreen()),
+      MaterialPageRoute(builder: (_) => const PortalSelectionScreen()),
       (route) => false,
     );
   }

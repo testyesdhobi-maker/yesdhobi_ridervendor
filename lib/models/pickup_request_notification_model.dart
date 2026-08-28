@@ -18,6 +18,8 @@ class PickupRequestNotificationModel {
   final String customerAvatarUrl;
   final String pickupAddress;
   final String pickupArea;
+  final double? pickupLatitude;
+  final double? pickupLongitude;
   final double distanceKm;
   final String estimatedItemsText;
   final double payout;
@@ -36,6 +38,8 @@ class PickupRequestNotificationModel {
     this.customerAvatarUrl = '',
     required this.pickupAddress,
     required this.pickupArea,
+    this.pickupLatitude = 12.9352,
+    this.pickupLongitude = 77.6245,
     this.distanceKm = 1.8,
     this.estimatedItemsText = '8–12 items',
     this.payout = 120.0,
@@ -66,6 +70,8 @@ class PickupRequestNotificationModel {
       orderId: orderId,
       customerName: customerName,
       customerAddress: fullAddress,
+      pickupLatitude: pickupLatitude,
+      pickupLongitude: pickupLongitude,
       deliveryAddress: 'Yes Dhobi Hub, Sector 44 Branch',
       customerInitials: customerName.isNotEmpty
           ? customerName

@@ -6,6 +6,8 @@ import 'package:yesdhobi_ridervendor/widgets/custom_back_button.dart';
 import 'package:yesdhobi_ridervendor/screens/rider_dashboard_screen.dart';
 import 'package:yesdhobi_ridervendor/services/rider_auth_service.dart';
 
+import 'package:yesdhobi_ridervendor/screens/front_camera_selfie_screen.dart';
+
 class SelfieConfirmationScreen extends StatelessWidget {
   final String imagePath;
 
@@ -27,7 +29,10 @@ class SelfieConfirmationScreen extends StatelessWidget {
   }
 
   void _handleRetake(BuildContext context) {
-    Navigator.pop(context);
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const FrontCameraSelfieScreen()),
+    );
   }
 
   @override

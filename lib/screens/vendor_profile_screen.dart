@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:yesdhobi_ridervendor/theme.dart';
 import 'package:yesdhobi_ridervendor/widgets/vendor_bottom_nav.dart';
-import 'package:yesdhobi_ridervendor/screens/vendor_login_screen.dart';
+import 'package:yesdhobi_ridervendor/screens/portal_selection_screen.dart';
+import 'package:yesdhobi_ridervendor/widgets/vendor_persistent_otp_banner.dart';
 
 class VendorProfileScreen extends StatelessWidget {
   const VendorProfileScreen({super.key});
@@ -9,7 +10,7 @@ class VendorProfileScreen extends StatelessWidget {
   void _handleLogout(BuildContext context) {
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (_) => const VendorLoginScreen()),
+      MaterialPageRoute(builder: (_) => const PortalSelectionScreen()),
       (route) => false,
     );
   }
@@ -17,8 +18,8 @@ class VendorProfileScreen extends StatelessWidget {
   void _handleEditProfile(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Edit shop profile features will be available shortly.'),
-        backgroundColor: AppTheme.primaryColor,
+        content: const Text('Edit profile settings will be available shortly.'),
+        backgroundColor: const Color(0xFF2563EB),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
@@ -37,6 +38,9 @@ class VendorProfileScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Persistent OTP Banner
+              const VendorPersistentOtpBanner(),
+
               // Title
               const Text(
                 'My Shop Profile',

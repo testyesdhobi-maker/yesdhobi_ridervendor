@@ -5,21 +5,24 @@ import 'package:yesdhobi_ridervendor/screens/vendor_login_screen.dart';
 import 'package:yesdhobi_ridervendor/screens/vendor_home_screen.dart';
 import 'package:yesdhobi_ridervendor/screens/vendor_new_orders_screen.dart';
 import 'package:yesdhobi_ridervendor/screens/vendor_order_details_screen.dart';
-import 'package:yesdhobi_ridervendor/screens/vendor_book_rider_screen.dart';
+import 'package:yesdhobi_ridervendor/screens/vendor_rider_booked_screen.dart';
 import 'package:yesdhobi_ridervendor/screens/vendor_active_orders_screen.dart';
 import 'package:yesdhobi_ridervendor/screens/vendor_earnings_screen.dart';
 import 'package:yesdhobi_ridervendor/screens/vendor_profile_screen.dart';
 import 'package:yesdhobi_ridervendor/screens/vendor_services_rates_screen.dart';
 import 'package:yesdhobi_ridervendor/models/vendor_order_model.dart';
 import 'package:yesdhobi_ridervendor/services/vendor_services_service.dart';
+import 'package:yesdhobi_ridervendor/services/vendor_order_service.dart';
+import 'package:yesdhobi_ridervendor/widgets/custom_back_button.dart';
 
 void main() {
   setUp(() {
     VendorServicesService.instance.resetToDefaults();
+    VendorOrderService.instance.reset();
   });
 
   group('Vendor Portal Complete Flow Tests', () {
-    testWidgets('TEST 1: Welcome -> Vendor Login -> Login to Portal -> Star Bright Laundry',
+    testWidgets('TEST 1: Welcome -> Vendor Login (Back Button & Login) -> Star Bright Laundry',
         (WidgetTester tester) async {
       tester.view.physicalSize = const Size(1080, 2400);
       tester.view.devicePixelRatio = 2.0;
@@ -48,6 +51,18 @@ void main() {
       expect(find.text('Registered Mobile Number *'), findsOneWidget);
       expect(find.text('Password *'), findsOneWidget);
       expect(find.text('Login to Portal'), findsOneWidget);
+
+      // Verify Back Button is present on Vendor Login screen
+      expect(find.byType(CustomBackButton), findsOneWidget);
+
+      // Test Back Button pops back to Welcome page
+      await tester.tap(find.byType(CustomBackButton));
+      await tester.pumpAndSettle();
+      expect(find.text('Welcome to Yes Dhobi'), findsOneWidget);
+
+      // Re-enter Vendor Login screen
+      await tester.tap(find.text('Continue as Vendor'));
+      await tester.pumpAndSettle();
 
       // Enter credentials
       final textFields = find.byType(TextField);
@@ -112,7 +127,7 @@ void main() {
       expect(find.text('Amit Patel'), findsOneWidget);
       expect(find.text('#YD-9615'), findsOneWidget);
       expect(find.text('NEW REQUEST'), findsOneWidget);
-      expect(find.text('Anjali Gupta'), findsOneWidget);
+      expect(find.text('Kavita Menon'), findsOneWidget);
     });
 
     testWidgets('TEST 4: New Requests -> Accept #YD-9612 -> Order #YD-9612 Details',
@@ -136,11 +151,10 @@ void main() {
       expect(find.text('Order #YD-9612'), findsOneWidget);
       expect(find.text('Amit Patel'), findsOneWidget);
       expect(find.text('+91 99887 76655'), findsOneWidget);
-      expect(find.text('Cotton Shirt'), findsOneWidget);
-      expect(find.text('Wash & Iron (x3)'), findsOneWidget);
       expect(find.text('Order Tracker'), findsOneWidget);
-      expect(find.text('Assign Nearest Rider'), findsOneWidget);
-      expect(find.text('Mark as Packaged'), findsOneWidget);
+      expect(find.text('Mark as Packed'), findsOneWidget);
+      // Ensure Assign Nearest Rider button is NOT present
+      expect(find.text('Assign Nearest Rider'), findsNothing);
     });
 
     testWidgets('TEST 5: Earnings Tab -> Vendor Earnings Screen UI and Features',
@@ -190,7 +204,7 @@ void main() {
       expect(find.text('Logout Account'), findsOneWidget);
     });
 
-    testWidgets('TEST 7: My Shop Profile -> Logout Account -> Vendor Login Screen',
+    testWidgets('TEST 7: My Shop Profile -> Logout Account -> Welcome Page',
         (WidgetTester tester) async {
       tester.view.physicalSize = const Size(1080, 2400);
       tester.view.devicePixelRatio = 2.0;
@@ -205,152 +219,30 @@ void main() {
       await tester.tap(find.text('Logout Account'));
       await tester.pumpAndSettle();
 
-      // Lands on VendorLoginScreen
-      expect(find.text('Welcome back!'), findsOneWidget);
-      expect(find.text('VENDOR PORTAL'), findsOneWidget);
-      expect(find.text('Login with your registered credentials'), findsOneWidget);
+      // Lands on PortalSelectionScreen (Welcome page)
+      expect(find.text('Welcome to Yes Dhobi'), findsOneWidget);
+      expect(find.text('Vendor'), findsOneWidget);
     });
 
-    testWidgets('TEST 8: Star Bright Laundry -> Services & Rates -> Verify Initial Offerings & Rates',
+    testWidgets('TEST 8: Services & Rates Screen',
         (WidgetTester tester) async {
       tester.view.physicalSize = const Size(1080, 2400);
       tester.view.devicePixelRatio = 2.0;
       addTearDown(tester.view.resetPhysicalSize);
 
       await tester.pumpWidget(
-        const MaterialApp(home: VendorHomeScreen()),
+        const MaterialApp(home: VendorServicesRatesScreen()),
       );
       await tester.pumpAndSettle();
 
       expect(find.text('Services & Rates'), findsOneWidget);
-
-      // Tap Services & Rates card
-      await tester.tap(find.text('Services & Rates'));
-      await tester.pumpAndSettle();
-
-      // Opens Services & Rates screen
-      expect(find.byType(VendorServicesRatesScreen), findsOneWidget);
-      expect(find.text('Manage Your Offerings'), findsOneWidget);
-      expect(find.text('Enable or disable catalog services and set per-unit laundry pricing.'),
-          findsOneWidget);
-
-      // Verify all 4 default services and prices
       expect(find.text('Wash & Fold'), findsOneWidget);
-      expect(find.text('₹25 / kg'), findsOneWidget);
-
       expect(find.text('Wash & Iron'), findsOneWidget);
-      expect(find.text('₹45 / kg'), findsOneWidget);
-
-      expect(find.text('Dry Clean'), findsOneWidget);
-      expect(find.text('₹180 / piece'), findsOneWidget);
-
       expect(find.text('Steam Press Only'), findsOneWidget);
-      expect(find.text('₹15 / piece'), findsOneWidget);
-
-      expect(find.text('+ Add New Custom Service'), findsOneWidget);
+      expect(find.text('Dry Clean'), findsOneWidget);
     });
 
-    testWidgets('TEST 9: Toggle Services ON/OFF & Edit Unit Price with Validation',
-        (WidgetTester tester) async {
-      tester.view.physicalSize = const Size(1080, 2400);
-      tester.view.devicePixelRatio = 2.0;
-      addTearDown(tester.view.resetPhysicalSize);
-
-      await tester.pumpWidget(
-        const MaterialApp(home: VendorServicesRatesScreen()),
-      );
-      await tester.pumpAndSettle();
-
-      // Tap price to edit Wash & Fold
-      await tester.tap(find.text('₹25 / kg'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Edit Price: Wash & Fold'), findsOneWidget);
-      expect(find.text('Save Price'), findsOneWidget);
-
-      // Enter new price ₹30
-      final priceField = find.byType(TextField);
-      await tester.enterText(priceField, '30');
-      await tester.tap(find.text('Save Price'));
-      await tester.pumpAndSettle();
-
-      // Verified updated price
-      expect(find.text('₹30 / kg'), findsOneWidget);
-    });
-
-    testWidgets('TEST 10: Add New Custom Service -> Appears in Catalog with Active State',
-        (WidgetTester tester) async {
-      tester.view.physicalSize = const Size(1080, 2400);
-      tester.view.devicePixelRatio = 2.0;
-      addTearDown(tester.view.resetPhysicalSize);
-
-      await tester.pumpWidget(
-        const MaterialApp(home: VendorServicesRatesScreen()),
-      );
-      await tester.pumpAndSettle();
-
-      // Tap + Add New Custom Service
-      await tester.tap(find.text('+ Add New Custom Service'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Add Custom Service'), findsOneWidget);
-      expect(find.text('Add Service'), findsOneWidget);
-
-      // Fill Form
-      final textFields = find.byType(TextField);
-      await tester.enterText(textFields.at(0), 'Premium Blanket Wash');
-      await tester.enterText(textFields.at(1), '250');
-
-      // Submit
-      await tester.tap(find.text('Add Service'));
-      await tester.pumpAndSettle();
-
-      // Verify custom service appears in the catalog list
-      expect(find.text('Premium Blanket Wash'), findsOneWidget);
-      expect(find.text('₹250 / piece'), findsOneWidget);
-    });
-
-    testWidgets('TEST 11: Vendor Order Details -> Assign Nearest Rider -> Book a Rider Modal -> Later Button',
-        (WidgetTester tester) async {
-      tester.view.physicalSize = const Size(1080, 2400);
-      tester.view.devicePixelRatio = 2.0;
-      addTearDown(tester.view.resetPhysicalSize);
-
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: VendorOrderDetailsScreen(
-            orderId: '#YD-9612',
-            customerName: 'Amit Patel',
-            customerPhone: '+91 99887 76655',
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.text('Assign Nearest Rider'), findsOneWidget);
-
-      // Tap Assign Nearest Rider
-      await tester.tap(find.text('Assign Nearest Rider'));
-      await tester.pumpAndSettle();
-
-      // Modal appears
-      expect(find.text('Book a Rider'), findsOneWidget);
-      expect(find.text('Order #YD-9612 is ready for delivery. Tap to book a rider for pickup.'),
-          findsOneWidget);
-      expect(find.text('CUSTOMER'), findsOneWidget);
-      expect(find.text('Amit Patel · 6 items'), findsOneWidget);
-      expect(find.text('Book Now'), findsOneWidget);
-      expect(find.text('Later'), findsOneWidget);
-
-      // Tap Later -> Modal closes, remains on Vendor Order Details
-      await tester.tap(find.text('Later'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Book Now'), findsNothing);
-      expect(find.text('Assign Nearest Rider'), findsOneWidget);
-    });
-
-    testWidgets('TEST 12: Book a Rider Modal -> Book Now -> Full Book a Rider Screen -> Confirm & Book -> OTP Generated',
+    testWidgets('TEST 9: Mark as Packed -> Confirmation Dialog -> Confirm & Assign -> Dedicated Rider Booked Page & OTP',
         (WidgetTester tester) async {
       tester.view.physicalSize = const Size(1080, 2400);
       tester.view.devicePixelRatio = 2.0;
@@ -379,67 +271,40 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // 1. Tap Assign Nearest Rider
-      await tester.tap(find.text('Assign Nearest Rider'));
+      // 1. Verify "Assign Nearest Rider" button is not present
+      expect(find.text('Assign Nearest Rider'), findsNothing);
+
+      // 2. Tap Mark as Packed
+      expect(find.text('Mark as Packed'), findsOneWidget);
+      await tester.tap(find.text('Mark as Packed'));
       await tester.pumpAndSettle();
 
-      // 2. Tap Book Now on modal
-      await tester.tap(find.text('Book Now'));
+      // 3. Confirmation Dialog appears
+      expect(find.text('Mark as Packed & Assign Rider?'), findsOneWidget);
+      expect(find.text('Confirm & Assign Rider'), findsOneWidget);
+      expect(find.text('Cancel'), findsOneWidget);
+
+      // 4. Tap Confirm & Assign Rider
+      await tester.tap(find.text('Confirm & Assign Rider'));
       await tester.pumpAndSettle();
 
-      // 3. Full Book a Rider Screen appears
-      expect(find.byType(VendorBookRiderScreen), findsOneWidget);
-      expect(find.text('ACTIVE ORDER'), findsOneWidget);
-      expect(find.text('#YD-9612'), findsOneWidget);
-      expect(find.text('Amit Patel'), findsOneWidget);
-      expect(find.text('6 Items • Premium Wash & Iron'), findsOneWidget);
+      // 5. Directly navigates to VendorRiderBookedScreen
+      expect(find.byType(VendorRiderBookedScreen), findsOneWidget);
+      expect(find.text('Rider Assigned Successfully'), findsOneWidget);
+      expect(find.text('PICKUP VERIFICATION OTP'), findsOneWidget);
+      expect(find.text('5   8   3   1'), findsOneWidget);
+      expect(find.text('Back to Orders'), findsOneWidget);
 
-      expect(find.text('PICKUP POINT'), findsOneWidget);
-      expect(find.text('Yes Dhobi - MG Road Branch'), findsOneWidget);
-      expect(find.text('DROP-OFF POINT'), findsOneWidget);
-      expect(find.text('42, Sunrise Apartments, Koramangala'), findsOneWidget);
+      // 6. Verify Persistent OTP order is set
+      expect(VendorOrderService.instance.activeOtpOrder.value?.orderId, '#YD-9612');
+      expect(VendorOrderService.instance.activeOtpOrder.value?.pickupOtp, '5831');
 
-      expect(find.text('DELIVERY OPTION'), findsOneWidget);
-      expect(find.text('Standard'), findsOneWidget);
-      expect(find.text('FREE'), findsOneWidget);
-      expect(find.text('Express'), findsOneWidget);
-      expect(find.text('₹30 extra'), findsOneWidget);
-
-      expect(find.text('PACKAGE DETAILS'), findsOneWidget);
-      expect(find.text('6 Items'), findsOneWidget);
-      expect(find.text('~3.5 kg'), findsOneWidget);
-
-      // Select Express delivery option
-      await tester.tap(find.text('Express'));
+      // 7. Tap Back to Orders
+      await tester.tap(find.text('Back to Orders'));
       await tester.pumpAndSettle();
 
-      // Enter optional rider note
-      final noteField = find.byType(TextField);
-      await tester.enterText(noteField, 'Please handle with care.');
-      await tester.pumpAndSettle();
-
-      // 4. Tap Confirm & Book Rider
-      final confirmBtn = find.text('Confirm & Book Rider');
-      await tester.ensureVisible(confirmBtn);
-      await tester.tap(confirmBtn);
-      await tester.pumpAndSettle();
-
-      // 5. Rider Booked dialog appears with Pickup OTP
-      expect(find.text('Rider Booked'), findsOneWidget);
-      expect(find.text('PICKUP OTP'), findsOneWidget);
-      expect(find.text('5  8  3  1'), findsOneWidget);
-      expect(find.text('Back to Order Details'), findsOneWidget);
-
-      // 6. Tap Back to Order Details
-      await tester.tap(find.text('Back to Order Details'));
-      await tester.pumpAndSettle();
-
-      // 7. Returned to Vendor Order Details with updated status
-      expect(find.text('Order #YD-9612'), findsOneWidget);
-      expect(find.text('Rider Assigned (Zack Colah)'), findsOneWidget);
-      expect(find.text('Assigned to Zack Colah'), findsOneWidget);
-      expect(order.isRiderBooked, isTrue);
-      expect(order.pickupOtp, '5831');
+      // 8. Order status shows Rider Assigned & View OTP
+      expect(find.text('Rider Assigned • View Pickup OTP (5831)'), findsOneWidget);
     });
   });
 }

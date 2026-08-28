@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:yesdhobi_ridervendor/models/order_flow_model.dart';
 import 'package:yesdhobi_ridervendor/theme.dart';
 import 'package:yesdhobi_ridervendor/screens/pickup_verification_screen.dart';
@@ -357,7 +358,11 @@ class RiderOrderDetailsScreen extends StatelessWidget {
                 width: double.infinity,
                 height: 56,
                 child: OutlinedButton.icon(
-                  onPressed: () {},
+                  onPressed: () => _launchGoogleMaps(
+                    state.pickupLatitude,
+                    state.pickupLongitude,
+                    state.customerAddress,
+                  ),
                   icon: const Icon(Icons.near_me_outlined),
                   label: const Text(
                     'Navigate to Pickup Location',
@@ -412,6 +417,31 @@ class RiderOrderDetailsScreen extends StatelessWidget {
       ),
       bottomNavigationBar: const AppBottomNav(currentIndex: 1),
     );
+  }
+
+  Future<void> _launchGoogleMaps(
+      double? lat, double? lng, String address) async {
+    Uri uri;
+    if (lat != null && lng != null) {
+      uri = Uri.parse(
+          'https://www.google.com/maps/dir/?api=1&destination=$lat,$lng');
+    } else if (address.isNotEmpty) {
+      final encoded = Uri.encodeComponent(address);
+      uri = Uri.parse(
+          'https://www.google.com/maps/dir/?api=1&destination=$encoded');
+    } else {
+      return;
+    }
+
+    try {
+      final bool launched =
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!launched) {
+        await launchUrl(uri, mode: LaunchMode.platformDefault);
+      }
+    } catch (e) {
+      debugPrint('Could not launch maps: $e');
+    }
   }
 
   Widget _buildDetailRow({

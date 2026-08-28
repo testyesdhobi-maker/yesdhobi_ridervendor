@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:yesdhobi_ridervendor/models/pickup_request_notification_model.dart';
 import 'package:yesdhobi_ridervendor/services/rider_notification_service.dart';
 import 'package:yesdhobi_ridervendor/widgets/incoming_pickup_request_dialog.dart';
-import 'package:yesdhobi_ridervendor/screens/order_request_screen.dart';
+import 'package:yesdhobi_ridervendor/screens/rider_order_details_screen.dart';
 import 'package:yesdhobi_ridervendor/screens/rider_dashboard_screen.dart';
 
 void main() {
@@ -118,7 +118,7 @@ void main() {
       expect(find.text('Accept Pickup'), findsOneWidget);
     });
 
-    testWidgets('4. Accept Pickup navigates directly to OrderRequestScreen with customer order',
+    testWidgets('4. Accept Pickup navigates directly to RiderOrderDetailsScreen with customer order',
         (WidgetTester tester) async {
       tester.view.physicalSize = const Size(1080, 2400);
       tester.view.devicePixelRatio = 2.0;
@@ -140,12 +140,12 @@ void main() {
       await tester.tap(find.text('Accept Pickup'));
       await tester.pumpAndSettle();
 
-      // Verifies destination is OrderRequestScreen with Sneha Kapoor's pickup
-      expect(find.byType(OrderRequestScreen), findsOneWidget);
-      expect(find.text('Order Request'), findsOneWidget);
+      // Verifies destination is RiderOrderDetailsScreen with Sneha Kapoor's pickup
+      expect(find.byType(RiderOrderDetailsScreen), findsOneWidget);
+      expect(find.text('Order Details'), findsOneWidget);
       expect(find.text('Sneha Kapoor'), findsOneWidget);
-      expect(find.text('Accept Order Request'), findsOneWidget);
-      expect(find.text('Reject & Next'), findsOneWidget);
+      expect(find.text('Navigate to Pickup Location'), findsOneWidget);
+      expect(find.text('PickUp Laundry'), findsOneWidget);
       expect(request.status, PickupRequestStatus.accepted);
     });
 

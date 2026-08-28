@@ -2,139 +2,155 @@ import 'package:flutter/material.dart';
 import 'package:yesdhobi_ridervendor/widgets/custom_back_button.dart';
 import 'package:yesdhobi_ridervendor/widgets/vendor_bottom_nav.dart';
 import 'package:yesdhobi_ridervendor/screens/vendor_order_details_screen.dart';
+import 'package:yesdhobi_ridervendor/services/vendor_order_service.dart';
+import 'package:yesdhobi_ridervendor/widgets/vendor_persistent_otp_banner.dart';
 
 class VendorNewOrdersScreen extends StatelessWidget {
   const VendorNewOrdersScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFF8FAFC),
-        elevation: 0,
-        leading: const CustomBackButton(),
-        title: const Text(
-          'New Requests',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF0F172A),
-          ),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: Center(
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFEF3C7),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Text(
-                  '2 PENDING',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFFD97706),
-                    letterSpacing: 0.5,
+    return ValueListenableBuilder<int>(
+      valueListenable: VendorOrderService.instance.orderUpdateNotifier,
+      builder: (context, _, child) {
+        final newRequests = VendorOrderService.instance.newRequests;
+
+        return Scaffold(
+          backgroundColor: const Color(0xFFF8FAFC),
+          appBar: AppBar(
+            backgroundColor: const Color(0xFFF8FAFC),
+            elevation: 0,
+            leading: const CustomBackButton(),
+            title: const Text(
+              'New Requests',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF0F172A),
+              ),
+            ),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: Center(
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEF3C7),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      '${newRequests.length} PENDING',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFFD97706),
+                        letterSpacing: 0.5,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-          child: Column(
-            children: [
-              // Request 1: #YD-9612 (URGENT)
-              _buildRequestCard(
-                context: context,
-                orderId: '#YD-9612',
-                receivedTime: 'Received 5m ago',
-                badgeText: 'URGENT',
-                badgeBgColor: const Color(0xFFFEF2F2),
-                badgeTextColor: const Color(0xFFEF4444),
-                customerName: 'Amit Patel',
-                serviceType: 'Wash & Iron',
-                totalItems: '3 Shirts, 2 Pants',
-                pickupSlot: 'Today, 05:00 PM',
-                onAccept: () {
-                  // New Requests -> Accept -> Vendor Order Details
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const VendorOrderDetailsScreen(
-                        orderId: '#YD-9612',
-                        customerName: 'Amit Patel',
-                        customerPhone: '+91 99887 76655',
-                      ),
-                    ),
-                  );
-                },
-                onReject: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Order #YD-9612 rejected.'),
-                      backgroundColor: const Color(0xFFEF4444),
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Request 2: #YD-9615 (NEW REQUEST)
-              _buildRequestCard(
-                context: context,
-                orderId: '#YD-9615',
-                receivedTime: 'Received 5m ago',
-                badgeText: 'NEW REQUEST',
-                badgeBgColor: const Color(0xFFFEF3C7),
-                badgeTextColor: const Color(0xFFD97706),
-                customerName: 'Anjali Gupta',
-                serviceType: 'Dry Clean',
-                totalItems: '1 Silk Saree, 1 Lehenga',
-                pickupSlot: 'Tomorrow, 10:00 AM',
-                onAccept: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const VendorOrderDetailsScreen(
-                        orderId: '#YD-9615',
-                        customerName: 'Anjali Gupta',
-                        customerPhone: '+91 98765 43210',
-                      ),
-                    ),
-                  );
-                },
-                onReject: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Order #YD-9615 rejected.'),
-                      backgroundColor: const Color(0xFFEF4444),
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
             ],
           ),
-        ),
-      ),
-      bottomNavigationBar: const VendorBottomNav(currentIndex: 1),
+          body: SafeArea(
+            child: Column(
+              children: [
+                // Persistent OTP Popup Banner
+                const VendorPersistentOtpBanner(),
+
+                Expanded(
+                  child: newRequests.isEmpty
+                      ? Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(24.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.inbox_outlined,
+                                  size: 48,
+                                  color: Colors.grey.shade400,
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  'No pending new requests',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.grey.shade600,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      : ListView.separated(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0, vertical: 12.0),
+                          itemCount: newRequests.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 16),
+                          itemBuilder: (context, index) {
+                            final request = newRequests[index];
+                            final isFirst = index == 0;
+
+                            return _buildRequestCard(
+                              context: context,
+                              orderId: request.orderId,
+                              receivedTime: 'Received 5m ago',
+                              badgeText: isFirst ? 'URGENT' : 'NEW REQUEST',
+                              badgeBgColor: isFirst
+                                  ? const Color(0xFFFEF2F2)
+                                  : const Color(0xFFFEF3C7),
+                              badgeTextColor: isFirst
+                                  ? const Color(0xFFEF4444)
+                                  : const Color(0xFFD97706),
+                              customerName: request.customerName,
+                              serviceType: request.serviceType,
+                              totalItems: request.itemsDescription,
+                              pickupSlot: 'Today, 05:00 PM',
+                              onAccept: () {
+                                VendorOrderService.instance
+                                    .acceptNewRequest(request);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => VendorOrderDetailsScreen(
+                                      order: request,
+                                      orderId: request.orderId,
+                                      customerName: request.customerName,
+                                      customerPhone: request.customerPhone,
+                                    ),
+                                  ),
+                                );
+                              },
+                              onReject: () {
+                                VendorOrderService.instance
+                                    .rejectNewRequest(request.orderId);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                        'Order ${request.orderId} rejected.'),
+                                    backgroundColor: const Color(0xFFEF4444),
+                                    behavior: SnackBarBehavior.floating,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                ),
+              ],
+            ),
+          ),
+          bottomNavigationBar: const VendorBottomNav(currentIndex: 1),
+        );
+      },
     );
   }
 
@@ -179,7 +195,7 @@ class VendorNewOrdersScreen extends StatelessWidget {
                   Text(
                     orderId,
                     style: const TextStyle(
-                      fontSize: 18,
+                      fontSize: 17,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF0F172A),
                     ),
@@ -188,8 +204,8 @@ class VendorNewOrdersScreen extends StatelessWidget {
                   Text(
                     receivedTime,
                     style: const TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF64748B),
+                      fontSize: 12,
+                      color: Color(0xFF94A3B8),
                     ),
                   ),
                 ],
@@ -199,7 +215,7 @@ class VendorNewOrdersScreen extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: badgeBgColor,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
                   badgeText,
@@ -207,57 +223,140 @@ class VendorNewOrdersScreen extends StatelessWidget {
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
                     color: badgeTextColor,
-                    letterSpacing: 0.4,
+                    letterSpacing: 0.5,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
 
-          // Details Box
+          // Customer Row
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF1F5F9),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.person_outline_rounded,
+                  color: Color(0xFF64748B),
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    customerName,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF0F172A),
+                    ),
+                  ),
+                  Text(
+                    serviceType,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF2563EB),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // Details Card
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
               color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
             ),
             child: Column(
               children: [
-                _buildInfoRow('Customer', customerName, isBold: true),
-                const SizedBox(height: 10),
-                _buildInfoRow('Service Type', serviceType,
-                    valueColor: const Color(0xFF2563EB), isBold: true),
-                const SizedBox(height: 10),
-                _buildInfoRow('Total Items', totalItems, isBold: true),
-                const SizedBox(height: 10),
-                _buildInfoRow('Pickup Slot', pickupSlot),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Items Description',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF64748B),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        totalItems,
+                        textAlign: TextAlign.end,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF0F172A),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Pickup Slot',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF64748B),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        pickupSlot,
+                        textAlign: TextAlign.end,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF0F172A),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
 
           // Action Buttons
           Row(
             children: [
               Expanded(
                 child: SizedBox(
-                  height: 48,
+                  height: 44,
                   child: OutlinedButton(
                     onPressed: onReject,
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF334155),
-                      side: const BorderSide(color: Color(0xFFE2E8F0)),
+                      foregroundColor: const Color(0xFF64748B),
+                      side: const BorderSide(color: Color(0xFFCBD5E1)),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                     child: const Text(
                       'Reject',
                       style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF334155),
                       ),
                     ),
                   ),
@@ -266,7 +365,7 @@ class VendorNewOrdersScreen extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: SizedBox(
-                  height: 48,
+                  height: 44,
                   child: ElevatedButton(
                     onPressed: onAccept,
                     style: ElevatedButton.styleFrom(
@@ -274,13 +373,13 @@ class VendorNewOrdersScreen extends StatelessWidget {
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                     child: const Text(
                       'Accept',
                       style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 14,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -291,39 +390,6 @@ class VendorNewOrdersScreen extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildInfoRow(
-    String label,
-    String value, {
-    Color valueColor = const Color(0xFF0F172A),
-    bool isBold = false,
-  }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 13,
-            color: Color(0xFF64748B),
-            fontWeight: FontWeight.w400,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            value,
-            textAlign: TextAlign.right,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
-              color: valueColor,
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

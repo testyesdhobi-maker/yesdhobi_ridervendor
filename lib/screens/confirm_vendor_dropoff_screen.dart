@@ -7,6 +7,7 @@ import 'package:yesdhobi_ridervendor/widgets/otp_input.dart';
 import 'package:yesdhobi_ridervendor/widgets/vendor_card.dart';
 import 'package:yesdhobi_ridervendor/widgets/app_bottom_nav.dart';
 import 'package:yesdhobi_ridervendor/screens/dropoff_confirmed_screen.dart';
+import 'package:yesdhobi_ridervendor/services/vendor_order_service.dart';
 
 class ConfirmVendorDropoffScreen extends StatefulWidget {
   final OrderFlowState? orderState;
@@ -95,6 +96,9 @@ class _ConfirmVendorDropoffScreenState
     _state.stage = DeliveryStage.delivered;
     _state.vendorOtp = _otp;
     _state.dropoffTime = '10:45 AM';
+
+    // Mark completed in VendorOrderService and dismiss OTP banner
+    VendorOrderService.instance.verifyOtpAndCompleteOrder(_state.orderId);
 
     Navigator.push(
       context,

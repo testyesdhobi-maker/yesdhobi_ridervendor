@@ -17,12 +17,18 @@ class RiderAuthService {
   bool _isLoggedIn = false;
   bool _isSelfieVerified = false;
   String? _selfieImagePath;
+  bool _isOnline = true;
 
   RiderRegistrationModel get registrationModel => _currentRegistration;
   RiderOnboardingStatus get onboardingStatus => _status;
   bool get isLoggedIn => _isLoggedIn;
   bool get isSelfieVerified => _isSelfieVerified;
   String? get selfieImagePath => _selfieImagePath;
+  bool get isOnline => _isOnline;
+
+  void setOnline(bool online) {
+    _isOnline = online;
+  }
 
   void setSelfieVerified(bool verified, {String? imagePath}) {
     _isSelfieVerified = verified;
@@ -51,6 +57,9 @@ class RiderAuthService {
 
   void logout() {
     _isLoggedIn = false;
+    _isSelfieVerified = false;
+    _selfieImagePath = null;
+    _isOnline = true;
   }
 
   void updatePersonalDetails({

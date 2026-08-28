@@ -5,7 +5,6 @@ import 'package:yesdhobi_ridervendor/screens/confirm_pickup_screen.dart';
 import 'package:yesdhobi_ridervendor/screens/pickup_verification_screen.dart';
 import 'package:yesdhobi_ridervendor/screens/order_status_screen.dart';
 import 'package:yesdhobi_ridervendor/screens/rider_order_details_screen.dart';
-import 'package:yesdhobi_ridervendor/screens/order_request_screen.dart';
 import 'package:yesdhobi_ridervendor/screens/confirm_vendor_dropoff_screen.dart';
 import 'package:yesdhobi_ridervendor/screens/dropoff_confirmed_screen.dart';
 
@@ -212,14 +211,7 @@ void main() {
         vendorOtp: '5812',
       );
 
-      // 1. Order Request Screen
-      await tester.pumpWidget(
-        MaterialApp(home: OrderRequestScreen(orderState: orderState)),
-      );
-      await tester.pumpAndSettle();
-      expect(find.text('Order Request'), findsOneWidget);
-
-      // 2. Order Details Screen
+      // 1. Order Details Screen
       await tester.pumpWidget(
         MaterialApp(home: RiderOrderDetailsScreen(orderState: orderState)),
       );
