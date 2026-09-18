@@ -1,0 +1,27 @@
+PAGE: RIDER MY PROFILE
+FILE: lib/screens/rider_profile_screen.dart
+API ROUTE: 
+- GET /api/v1/rider/profile
+- POST /api/v1/rider/auth/logout
+
+1. PROFILE DATA FIELDS:
+- rider_id: UUID
+- rider_code: String ('#RD-8842')
+- full_name: String ('Amit Verma')
+- mobile_number: String ('+91 98765 43210')
+- email: String ('amit.verma@yesdhobi.com')
+- is_verified_partner: Boolean (true)
+- vehicle_summary: String ('Motorcycle • KA 05 EQ 9812')
+- driving_license_number: String ('DL-1420110012345')
+- aadhaar_verified: Boolean (true)
+- pan_verified: Boolean (true)
+- bank_summary: String ('State Bank of India •••• 4012')
+- stats:
+  - completed_trips: Integer (142)
+  - rating: Decimal(2, 1) (4.9)
+  - acceptance_rate_percent: Decimal(3, 1) (98.0)
+
+2. LOGOUT ACTION:
+POST /api/v1/rider/auth/logout
+- Clears active token and rider authentication state.
+- Navigates directly to Portal Selection Screen (Welcome Page).

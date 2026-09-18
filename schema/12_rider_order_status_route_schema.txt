@@ -1,0 +1,18 @@
+PAGE: RIDER ORDER STATUS & DROP-OFF ROUTE
+FILE: lib/screens/order_status_screen.dart
+API ROUTE: GET /api/v1/rider/orders/:order_id/status
+
+1. DISPLAY FIELDS:
+- order_id: String ('#YD-90823')
+- stage: Enum ('accepted', 'pickedUp', 'outForDrop', 'delivered')
+- current_stage_title: String ('Out for Drop-off')
+- vendor_name: String ('Star Bright Laundry')
+- vendor_rating: Decimal(2, 1) (4.9)
+- vendor_tag: String ('Professional Partner')
+- vendor_address: String ('Shop No. 12, Sector 15, HSR Layout, Bengaluru')
+- vendor_phone: String ('+91 91234 56789')
+- dropoff_eta: String ('~8 mins')
+- navigation_coordinates: { latitude: 12.9121, longitude: 77.6446 }
+
+2. PRIMARY ACTION:
+"Confirm Vendor Drop-off" -> Navigates to Confirm Vendor Dropoff Screen.

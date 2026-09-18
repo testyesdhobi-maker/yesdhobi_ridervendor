@@ -1,0 +1,17 @@
+PAGE: VENDOR EARNINGS & FINANCIALS
+FILE: lib/screens/vendor_earnings_screen.dart
+API ROUTE: GET /api/v1/vendor/earnings?period=this_week
+
+1. SUMMARY STATS & PERIOD TABS:
+- period_filter: Enum ('Today', 'This Week', 'This Month')
+- net_earnings: Decimal(12, 2) (e.g. Today: ₹2,180.00 | Week: ₹12,450.00 | Month: ₹54,300.00)
+- orders_processed: Integer (Today: 9 | Week: 48 | Month: 210)
+- avg_order_value: Decimal(10, 2) (Today: ₹242.00 | Week: ₹260.00 | Month: ₹258.00)
+- next_payout_date: Date ('22 Oct 2026')
+- pending_payout_amount: Decimal(10, 2) ('₹4,120.00 pending')
+
+2. RECENT PAYOUTS LIST:
+- payout_id: String (e.g. '#PAY-9411', '#PAY-9382')
+- payout_date: Date (e.g. '15 Oct', '08 Oct')
+- payout_amount: Decimal(10, 2) ('₹11,800.00', '₹9,450.00')
+- status: Enum ('PAID', 'PROCESSING', 'PENDING')

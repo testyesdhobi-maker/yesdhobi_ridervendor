@@ -1,0 +1,55 @@
+PAGE: RIDER REGISTRATION - STEP 2: VEHICLE DETAILS
+FILE: lib/screens/rider_register_step2_screen.dart
+API ROUTE: POST /api/v1/rider/register/step2
+
+1. FORM INPUT FIELDS & VALIDATION RULES:
+- temp_registration_id:
+  - Type: UUID (from Step 1)
+  - Mandatory: Yes
+- vehicle_type:
+  - Type: Enum ('MOTORCYCLE', 'SCOOTER', 'BICYCLE', 'EV_SCOOTER')
+  - Mandatory: Yes
+  - Default: 'MOTORCYCLE'
+- vehicle_number:
+  - Type: String
+  - Mandatory: Yes (Optional only if vehicle_type == 'BICYCLE')
+  - Regex: ^[A-Z]{2}\d{1,2}[A-Z]{0,3}\d{4}$
+  - Format: Indian registration number (e.g., KA05EQ9812 / MH02AA1234)
+  - Errors:
+    - Empty: "Please enter your vehicle registration number"
+    - Invalid: "Enter a valid Indian vehicle number (e.g. MH 02 AA 1234)"
+- driving_license_number:
+  - Type: String
+  - Mandatory: Yes
+  - Constraint: 9 to 18 characters, starts with state code
+  - Regex: ^[A-Z]{2}[0-9A-Z]{7,16}$
+  - Errors:
+    - Empty: "Please enter your driving license number"
+    - Length/Format: "Enter a valid driving license number (e.g. DL-1420110012345)"
+- driving_license_photo:
+  - Type: File (Front photo upload / S3)
+  - Mandatory: Yes
+  - Max Size: 5 MB
+  - Errors:
+    - Empty: "Please upload the front of your driving license"
+    - Size: "Driving license photo must be less than 5MB"
+
+2. API REQUEST PAYLOAD:
+{
+  "temp_registration_id": "c7a8b412-1a2b-4c3d-8e9f-0123456789ab",
+  "vehicle_type": "MOTORCYCLE",
+  "vehicle_number": "KA 05 EQ 9812",
+  "driving_license_number": "DL-1420110012345",
+  "driving_license_photo_url": "https://storage.yesdhobi.com/uploads/dl_front.jpg",
+  "driving_license_photo_size": 2048500
+}
+
+3. API RESPONSE (200 OK):
+{
+  "success": true,
+  "message": "Vehicle details saved successfully",
+  "data": {
+    "temp_registration_id": "c7a8b412-1a2b-4c3d-8e9f-0123456789ab",
+    "onboarding_status": "VEHICLE_DETAILS_COMPLETED"
+  }
+}

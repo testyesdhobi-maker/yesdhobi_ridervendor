@@ -1,0 +1,62 @@
+PAGE: RIDER LOGIN SCREEN
+FILE: lib/screens/rider_login_screen.dart
+API ROUTE: POST /api/v1/rider/auth/login
+
+1. FORM INPUT FIELDS & VALIDATION RULES:
+- mobile_number:
+  - Type: String (10 digits)
+  - Mandatory: Yes
+  - Regex: ^[6-9]\d{9}$
+  - Error Messages: 
+    - Empty: "Please enter registered mobile number"
+    - Invalid: "Enter a valid 10-digit mobile number"
+- password:
+  - Type: String
+  - Mandatory: Yes
+  - Constraints: Min 6 characters
+  - Error Messages:
+    - Empty: "Please enter password"
+- device_token:
+  - Type: String (Optional, for FCM / APNS Push Notifications)
+- platform:
+  - Type: Enum ('android', 'ios') (Optional)
+
+2. API REQUEST DTO:
+{
+  "mobile_number": "9876543210",
+  "password": "Password123!",
+  "device_token": "fcm_token_string",
+  "platform": "android"
+}
+
+3. API RESPONSE DTO (SUCCESS 200 OK):
+{
+  "success": true,
+  "message": "Login successful",
+  "data": {
+    "token": "JWT_BEARER_TOKEN_HERE",
+    "refresh_token": "REFRESH_TOKEN_HERE",
+    "rider": {
+      "id": "c7a8b412-1a2b-4c3d-8e9f-0123456789ab",
+      "rider_code": "RD-8842",
+      "full_name": "Amit Verma",
+      "mobile_number": "9876543210",
+      "email": "amit.verma@example.com",
+      "profile_photo_url": "https://storage.yesdhobi.com/riders/RD-8842/profile.jpg",
+      "onboarding_status": "APPROVED",
+      "is_verified": true,
+      "is_selfie_verified": false,
+      "is_online": false
+    }
+  }
+}
+
+4. POST-LOGIN NAVIGATION LOGIC:
+- If onboarding_status != 'APPROVED' -> Navigate to pending registration step.
+- If is_selfie_verified == false -> Navigate to Identity Verification (Front-Camera Selfie Screen).
+- If is_selfie_verified == true -> Navigate directly to Rider Dashboard.
+
+5. ERROR CODES:
+- 400 BAD_REQUEST: Validation failed.
+- 401 UNAUTHORIZED: Invalid credentials.
+- 403 FORBIDDEN: Account under review or deactivated.

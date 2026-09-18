@@ -1,0 +1,24 @@
+PAGE: RIDER REGISTRATION UNDER REVIEW
+FILE: lib/screens/rider_under_review_screen.dart
+API ROUTE: GET /api/v1/rider/registration-status/:rider_id
+
+1. DISPLAY FIELDS:
+- rider_code: String (e.g. '#RD-8842')
+- submission_date: Date / String (e.g. 'Today, 11:30 AM')
+- status: Enum ('UNDER_REVIEW', 'APPROVED', 'REJECTED')
+- status_badge_text: String ('Under Verification')
+- review_estimated_time: String ('24 - 48 Hours')
+- support_contact_number: String ('+91 98765 43210')
+
+2. API RESPONSE (200 OK):
+{
+  "success": true,
+  "data": {
+    "rider_id": "c7a8b412-1a2b-4c3d-8e9f-0123456789ab",
+    "rider_code": "RD-8842",
+    "full_name": "Amit Verma",
+    "onboarding_status": "UNDER_REVIEW",
+    "is_verified": false,
+    "submitted_at": "2026-08-28T10:00:00Z"
+  }
+}

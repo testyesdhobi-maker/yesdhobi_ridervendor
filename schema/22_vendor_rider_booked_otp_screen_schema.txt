@@ -1,0 +1,26 @@
+PAGE: VENDOR RIDER BOOKED & PICKUP OTP SCREEN
+FILE: lib/screens/vendor_rider_booked_screen.dart
+
+1. DISPLAY FIELDS:
+- success_badge: String ('Rider Assigned Successfully')
+- order_id: String ('#YD-9612')
+- assigned_rider:
+  - name: String ('Zack Colah')
+  - vehicle: String ('Honda Activa • KA 01 AB 1234')
+  - phone: String ('+91 98765 00000')
+  - status: String ('Arriving in ~5 mins')
+- pickup_otp: String(4) ('5831' - Highlighted large PIN box for vendor to share with rider)
+- route_details:
+  - pickup_point_name: String ('Yes Dhobi - MG Road Branch')
+  - pickup_address: String ('Shop 4, Ground Floor, MG Road Metro Pillar 120')
+  - dropoff_point_name: String ('42, Sunrise Apartments, Koramangala')
+  - dropoff_address: String ('Sunrise Block B, 4th Block, Near Post Office')
+- package_details:
+  - items_count: Integer (6)
+  - estimated_weight: String ('~3.5 kg')
+  - delivery_option: Enum ('Standard', 'Express')
+  - rider_notes: String?
+
+2. ACTIONS:
+- "Back to Orders" -> Navigates back to vendor order list.
+- "Complete Handover" -> Simulates/verifies handover OTP completion.

@@ -1,0 +1,23 @@
+PAGE: VENDOR MY SHOP PROFILE
+FILE: lib/screens/vendor_profile_screen.dart
+API ROUTE: 
+- GET /api/v1/vendor/profile
+- POST /api/v1/vendor/auth/logout
+
+1. PROFILE DATA FIELDS:
+- shop_name: String ('Star Bright Laundry')
+- shop_initials: String ('SB')
+- vendor_code: String ('#V-8947')
+- owner_name: String ('Rajesh Kumar')
+- registered_mobile: String ('+91 98765 43210')
+- business_email: String ('starbright@yesdhobi.com')
+- shop_address: String ('Shop 12, Sector 15, HSR Layout, Bengaluru')
+- gst_number: String ('29ABCDE1234F1Z5')
+- rating: Decimal(2, 1) ('4.8')
+- vendor_tag: String ('VERIFIED PARTNER')
+- is_active: Boolean (true)
+
+2. LOGOUT ACTION:
+POST /api/v1/vendor/auth/logout
+- Clears active vendor authentication session.
+- Directly routes to Portal Selection Screen (Welcome Page).

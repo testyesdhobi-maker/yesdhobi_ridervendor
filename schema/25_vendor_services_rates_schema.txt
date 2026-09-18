@@ -1,0 +1,34 @@
+PAGE: VENDOR SERVICES & RATES
+FILE: lib/screens/vendor_services_rates_screen.dart
+API ROUTE: 
+- GET /api/v1/vendor/services
+- PATCH /api/v1/vendor/services/:service_id
+
+1. SERVICES LIST SCHEMA:
+- service_id: String (e.g. 'wash_fold', 'wash_iron', 'dry_clean', 'steam_press')
+- service_name: String ('Wash & Fold', 'Wash & Iron', 'Dry Clean', 'Steam Press Only')
+- is_enabled: Boolean (Toggle switch to activate/deactivate)
+- price: Decimal(8, 2) (₹25.00, ₹45.00, ₹180.00, ₹15.00)
+- unit: Enum ('kg', 'piece', 'pair', 'item')
+- is_custom: Boolean (false for system defaults, true for custom additions)
+
+2. EDIT PRICE BOTTOM SHEET MODAL:
+- Input Field: new_price (Decimal, must be > 0)
+- Save Action: PATCH /api/v1/vendor/services/:service_id
+  {
+    "price": 50.00,
+    "is_enabled": true
+  }
+
+3. RESPONSE (200 OK):
+{
+  "success": true,
+  "message": "Service price updated successfully",
+  "data": {
+    "service_id": "wash_iron",
+    "service_name": "Wash & Iron",
+    "price": 50.00,
+    "unit": "kg",
+    "is_enabled": true
+  }
+}

@@ -1,0 +1,72 @@
+PAGE: RIDER REGISTRATION - STEP 1: PERSONAL DETAILS
+FILE: lib/screens/rider_register_step1_screen.dart
+API ROUTE: POST /api/v1/rider/register/step1
+
+1. FORM INPUT FIELDS & VALIDATION RULES:
+- full_name:
+  - Type: String (Min 2 chars)
+  - Mandatory: Yes
+  - Regex: ^[a-zA-Z\s'-]+$
+  - Errors:
+    - Empty: "Please enter your full name"
+    - Length: "Full name must be at least 2 characters"
+    - Characters: "Full name can only contain letters and spaces"
+    - Format: "Full name cannot have multiple consecutive spaces"
+- mobile_number:
+  - Type: String (10 digits)
+  - Mandatory: Yes
+  - Regex: ^[6-9]\d{9}$
+  - Errors:
+    - Empty: "Please enter your mobile number"
+    - Format: "Enter a valid 10-digit mobile number starting with 6-9"
+- email:
+  - Type: String
+  - Mandatory: Yes
+  - Regex: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+  - Errors:
+    - Empty: "Please enter your email address"
+    - Format: "Enter a valid email address"
+- password:
+  - Type: String
+  - Mandatory: Yes
+  - Constraint: Min 6 characters
+  - Errors:
+    - Empty: "Please enter a password"
+    - Length: "Password must be at least 6 characters"
+- date_of_birth:
+  - Type: Date (DD/MM/YYYY)
+  - Mandatory: Yes
+  - Constraint: Rider age must be >= 18 years and <= 100 years
+  - Errors:
+    - Empty: "Please select your date of birth"
+    - Future Date: "Date of birth cannot be in the future"
+    - Age < 18: "You must be at least 18 years old to register"
+    - Age > 100: "Please enter a valid date of birth"
+- profile_photo:
+  - Type: File (Image multipart / S3 upload)
+  - Mandatory: Yes (Selfie capture)
+  - Max Size: 5 MB (5 * 1024 * 1024 bytes)
+  - Errors:
+    - Empty: "Please take a selfie photo"
+    - Size: "Profile photo must be less than 5MB"
+
+2. API REQUEST PAYLOAD:
+{
+  "full_name": "Amit Verma",
+  "mobile_number": "9876543210",
+  "email": "amit.verma@example.com",
+  "password": "SecurePassword123!",
+  "date_of_birth": "1998-05-14",
+  "profile_photo_url": "https://storage.yesdhobi.com/uploads/selfie_01.jpg",
+  "profile_photo_size": 1048576
+}
+
+3. API RESPONSE (200 OK):
+{
+  "success": true,
+  "message": "Personal details saved successfully",
+  "data": {
+    "temp_registration_id": "c7a8b412-1a2b-4c3d-8e9f-0123456789ab",
+    "onboarding_status": "PERSONAL_DETAILS_COMPLETED"
+  }
+}

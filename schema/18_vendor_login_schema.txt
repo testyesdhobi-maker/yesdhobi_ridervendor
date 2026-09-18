@@ -1,0 +1,42 @@
+PAGE: VENDOR LOGIN SCREEN
+FILE: lib/screens/vendor_login_screen.dart
+API ROUTE: POST /api/v1/vendor/auth/login
+
+1. FORM INPUT FIELDS & VALIDATION RULES:
+- mobile_number:
+  - Type: String (10 digits)
+  - Mandatory: Yes
+  - Regex: ^[6-9]\d{9}$
+  - Error Messages:
+    - Empty: "Please enter registered mobile number"
+    - Invalid: "Enter a valid 10-digit mobile number"
+- password:
+  - Type: String
+  - Mandatory: Yes
+  - Error Message: "Please enter your password"
+- back_button:
+  - Action: Pops navigation back to Portal Selection Screen (Welcome Page).
+
+2. API REQUEST DTO:
+{
+  "mobile_number": "9876543210",
+  "password": "Password123!"
+}
+
+3. API RESPONSE DTO (200 OK):
+{
+  "success": true,
+  "message": "Vendor login successful",
+  "data": {
+    "token": "JWT_VENDOR_TOKEN",
+    "vendor": {
+      "id": "v-8947-uuid-here",
+      "vendor_code": "V-8947",
+      "shop_name": "Star Bright Laundry",
+      "owner_name": "Rajesh Kumar",
+      "mobile_number": "9876543210",
+      "is_active": true,
+      "rating": 4.8
+    }
+  }
+}

@@ -1,0 +1,31 @@
+PAGE: RIDER MY EARNINGS & BANK WITHDRAWAL
+FILE: lib/screens/rider_earnings_screen.dart
+API ROUTE: 
+- GET /api/v1/rider/earnings?period=this_week
+- POST /api/v1/rider/earnings/withdraw
+
+1. EARNINGS DISPLAY FIELDS:
+- selected_period: Enum ('Today', 'This Week', 'This Month')
+- total_outstanding_payout: Decimal(12, 2) (e.g. ₹4,890.00)
+- registered_bank_name: String ('State Bank of India')
+- masked_account_number: String ('• • • • 4012')
+- is_default_bank: Boolean (true)
+- weekly_daily_breakdown: Array<{ day: String, date: String, amount: Decimal, orders_count: Integer }>
+
+2. WITHDRAW REQUEST:
+POST /api/v1/rider/earnings/withdraw
+{
+  "amount": 4890.00,
+  "bank_account_id": "bank_acc_123"
+}
+
+3. WITHDRAW RESPONSE (200 OK):
+{
+  "success": true,
+  "message": "Withdrawal request of ₹4,890.00 submitted to State Bank of India.",
+  "data": {
+    "transaction_id": "TXN-94112",
+    "status": "PROCESSING",
+    "estimated_settlement_hours": 24
+  }
+}

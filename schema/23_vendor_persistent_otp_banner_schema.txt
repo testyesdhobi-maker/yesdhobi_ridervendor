@@ -1,0 +1,14 @@
+COMPONENT: VENDOR PERSISTENT FLOATING OTP BANNER
+FILE: lib/widgets/vendor_persistent_otp_banner.dart
+STATE SOURCE: VendorOrderService.instance.activeOtpOrder (ValueNotifier)
+
+1. PURPOSE:
+Persistent popup banner displayed at the top of ALL Vendor pages (Home, New Requests, Active Tasks, Earnings, Profile) whenever an order has an assigned rider waiting for OTP verification.
+
+2. FIELDS & DISPLAY ELEMENTS:
+- active_order_id: String (e.g. '#YD-9612')
+- assigned_rider_name: String (e.g. 'Zack Colah')
+- pickup_otp: String(4) (e.g. '5831')
+- banner_text: String ('Order #YD-9612 • Zack Colah Assigned | PICKUP OTP: 5831')
+- tap_action: Reopens the full VendorRiderBookedScreen for the active order.
+- auto_dismiss_trigger: Automatically disappears when the rider enters the OTP and completes delivery.

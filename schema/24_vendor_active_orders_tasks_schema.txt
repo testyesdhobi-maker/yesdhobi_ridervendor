@@ -1,0 +1,19 @@
+PAGE: VENDOR ACTIVE TASKS / ORDERS
+FILE: lib/screens/vendor_active_orders_screen.dart
+API ROUTE: GET /api/v1/vendor/orders/active?status=in_progress
+
+1. FILTER TABS:
+- 'In Progress' (is_packed == false)
+- 'Ready' (is_packed == true && is_rider_booked == false)
+- 'Out for Delivery' (is_rider_booked == true && is_completed == false)
+
+2. LIST ITEM CARD FIELDS:
+- order_id: String ('#YD-9584')
+- customer_name: String ('Pooja Sharma')
+- service_type: String ('Express Steam Iron')
+- items_summary: String ('8 Items')
+- due_time: String ('Due by 4:00 PM')
+- status_badge: String ('WASHING' / 'PACKED' / 'RIDER_ASSIGNED')
+
+3. ACTIONS:
+- Tap card -> Navigates to Vendor Order Details Screen (/vendor/order-details).

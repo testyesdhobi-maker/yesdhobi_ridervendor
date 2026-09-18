@@ -1,0 +1,126 @@
+MASTER RELATIONAL DATABASE SCHEMA (POSTGRESQL DDL)
+FILE: schema/28_master_database_postgres_schema.txt
+
+-- 1. ENUMS
+CREATE TYPE rider_onboarding_status_enum AS ENUM (
+    'NOT_STARTED', 'PERSONAL_DETAILS_COMPLETED', 'VEHICLE_DETAILS_COMPLETED', 
+    'DOCUMENTS_COMPLETED', 'UNDER_REVIEW', 'APPROVED', 'REJECTED'
+);
+CREATE TYPE vehicle_type_enum AS ENUM ('MOTORCYCLE', 'SCOOTER', 'BICYCLE', 'EV_SCOOTER');
+CREATE TYPE service_unit_enum AS ENUM ('KG', 'PIECE', 'PAIR', 'ITEM');
+CREATE TYPE delivery_option_enum AS ENUM ('STANDARD', 'EXPRESS');
+CREATE TYPE order_status_enum AS ENUM (
+    'NEW_REQUEST', 'ACCEPTED', 'IN_PROGRESS', 'PACKED', 
+    'RIDER_ASSIGNED', 'PICKED_UP', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CANCELLED'
+);
+
+-- 2. RIDERS TABLE
+CREATE TABLE riders (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    rider_code VARCHAR(20) UNIQUE NOT NULL,
+    full_name VARCHAR(100) NOT NULL,
+    mobile_number VARCHAR(15) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    date_of_birth DATE NOT NULL,
+    profile_photo_url TEXT NOT NULL,
+    profile_photo_size INTEGER,
+    vehicle_type vehicle_type_enum NOT NULL DEFAULT 'MOTORCYCLE',
+    vehicle_number VARCHAR(30),
+    driving_license_number VARCHAR(50) NOT NULL,
+    driving_license_photo_url TEXT NOT NULL,
+    driving_license_photo_size INTEGER,
+    aadhaar_front_url TEXT NOT NULL,
+    aadhaar_front_size INTEGER,
+    aadhaar_back_url TEXT NOT NULL,
+    aadhaar_back_size INTEGER,
+    pan_number VARCHAR(20) NOT NULL,
+    bank_name VARCHAR(100) DEFAULT 'State Bank of India',
+    bank_account_number VARCHAR(50) NOT NULL,
+    ifsc_code VARCHAR(20) NOT NULL,
+    onboarding_status rider_onboarding_status_enum NOT NULL DEFAULT 'UNDER_REVIEW',
+    is_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    is_selfie_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    last_selfie_url TEXT,
+    is_online BOOLEAN NOT NULL DEFAULT FALSE,
+    current_latitude DECIMAL(10, 7),
+    current_longitude DECIMAL(10, 7),
+    rating DECIMAL(2, 1) NOT NULL DEFAULT 5.0,
+    total_orders_completed INTEGER NOT NULL DEFAULT 0,
+    total_earned DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
+    outstanding_payout DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 3. VENDORS TABLE
+CREATE TABLE vendors (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    vendor_code VARCHAR(20) UNIQUE NOT NULL,
+    shop_name VARCHAR(150) NOT NULL,
+    owner_name VARCHAR(100) NOT NULL,
+    mobile_number VARCHAR(15) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    shop_address TEXT NOT NULL,
+    latitude DECIMAL(10, 7) NOT NULL,
+    longitude DECIMAL(10, 7) NOT NULL,
+    gst_number VARCHAR(30),
+    vendor_tag VARCHAR(50) NOT NULL DEFAULT 'Verified Partner',
+    rating DECIMAL(2, 1) NOT NULL DEFAULT 5.0,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    today_revenue DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
+    weekly_revenue DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
+    monthly_revenue DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
+    pending_payout DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
+    next_payout_date DATE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 4. VENDOR SERVICES TABLE
+CREATE TABLE vendor_services (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    vendor_id UUID NOT NULL REFERENCES vendors(id) ON DELETE CASCADE,
+    service_name VARCHAR(100) NOT NULL,
+    is_enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    price DECIMAL(10, 2) NOT NULL,
+    unit service_unit_enum NOT NULL DEFAULT 'KG',
+    is_custom BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(vendor_id, service_name)
+);
+
+-- 5. ORDERS TABLE
+CREATE TABLE orders (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    order_code VARCHAR(30) UNIQUE NOT NULL,
+    vendor_id UUID NOT NULL REFERENCES vendors(id),
+    rider_id UUID REFERENCES riders(id),
+    customer_name VARCHAR(100) NOT NULL,
+    customer_phone VARCHAR(20) NOT NULL,
+    service_type VARCHAR(100) NOT NULL,
+    item_count INTEGER NOT NULL DEFAULT 1,
+    items_description TEXT NOT NULL,
+    pickup_point_name VARCHAR(150) NOT NULL,
+    pickup_address TEXT NOT NULL,
+    pickup_latitude DECIMAL(10, 7),
+    pickup_longitude DECIMAL(10, 7),
+    dropoff_point_name VARCHAR(150) NOT NULL,
+    dropoff_address TEXT NOT NULL,
+    dropoff_latitude DECIMAL(10, 7),
+    dropoff_longitude DECIMAL(10, 7),
+    distance_km DECIMAL(6, 2) NOT NULL DEFAULT 0.00,
+    delivery_option delivery_option_enum NOT NULL DEFAULT 'STANDARD',
+    rider_notes TEXT,
+    is_packed BOOLEAN NOT NULL DEFAULT FALSE,
+    is_rider_booked BOOLEAN NOT NULL DEFAULT FALSE,
+    pickup_otp VARCHAR(6) NOT NULL,
+    customer_otp VARCHAR(6),
+    order_status order_status_enum NOT NULL DEFAULT 'NEW_REQUEST',
+    rider_payout DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    total_order_amount DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    packed_at TIMESTAMPTZ,
+    delivered_at TIMESTAMPTZ
+);

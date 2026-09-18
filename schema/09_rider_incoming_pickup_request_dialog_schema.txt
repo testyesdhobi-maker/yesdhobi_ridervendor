@@ -1,0 +1,40 @@
+PAGE / COMPONENT: INCOMING PICKUP REQUEST DIALOG
+FILE: lib/widgets/incoming_pickup_request_dialog.dart
+SOCKET / WEBSOCKET / SSE EVENT: 'pickup_request_offer'
+API ROUTE: POST /api/v1/rider/pickup-requests/:request_id/respond
+
+1. POPUP DISPLAY FIELDS:
+- request_id: UUID
+- order_id: String (e.g. '#YD-90823')
+- customer_name: String (e.g. 'Rahul Sharma')
+- customer_type: String (e.g. 'Regular Customer')
+- customer_tag: String (e.g. 'VIP')
+- previous_orders_count: Integer (e.g. 24)
+- customer_avatar_url: String
+- pickup_address: String (e.g. 'B-402, Shanti Vihar')
+- pickup_area: String (e.g. 'Sector 45')
+- pickup_latitude: Decimal(10, 7)
+- pickup_longitude: Decimal(10, 7)
+- distance_km: Decimal(4, 1) (e.g. 1.8)
+- estimated_items_text: String (e.g. '8–12 items')
+- payout: Decimal(8, 2) (e.g. 120.00)
+- total_seconds: Integer (12 seconds countdown)
+- status: Enum ('OFFERED', 'ACCEPTED', 'DECLINED', 'EXPIRED')
+
+2. RESPOND API REQUEST:
+POST /api/v1/rider/pickup-requests/req_90823/respond
+{
+  "action": "ACCEPT", // or "DECLINE"
+  "latitude": 12.9352,
+  "longitude": 77.6245
+}
+
+3. RESPOND API RESPONSE (200 OK):
+{
+  "success": true,
+  "message": "Pickup request accepted",
+  "data": {
+    "order_id": "#YD-90823",
+    "delivery_stage": "accepted"
+  }
+}

@@ -1,0 +1,29 @@
+PAGE: CONFIRM VENDOR DROP-OFF & OTP VERIFICATION
+FILE: lib/screens/confirm_vendor_dropoff_screen.dart
+API ROUTE: POST /api/v1/rider/orders/:order_id/verify-vendor-dropoff
+
+1. FORM INPUT & STATE:
+- order_id: String (Mandatory)
+- vendor_otp_input: String(4) (Mandatory, 4 digits provided by vendor at store)
+- countdown_seconds: Integer (28s countdown for OTP resend request)
+
+2. API REQUEST:
+POST /api/v1/rider/orders/YD-9612/verify-vendor-dropoff
+{
+  "vendor_otp": "5831"
+}
+
+3. API RESPONSE (200 OK):
+{
+  "success": true,
+  "message": "Vendor drop-off confirmed and verified successfully",
+  "data": {
+    "order_id": "#YD-9612",
+    "delivery_stage": "delivered",
+    "dropoff_time": "10:45 AM",
+    "payout_credited": 65.00
+  }
+}
+
+4. SIDE-EFFECT:
+Marks the order as delivered/completed in the Vendor Portal database, dismissing the persistent vendor pickup OTP banner.

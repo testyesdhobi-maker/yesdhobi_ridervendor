@@ -1,0 +1,56 @@
+PAGE: RIDER PICKUP VERIFICATION & PRICING
+FILE: lib/screens/pickup_verification_screen.dart
+API ROUTE: POST /api/v1/rider/orders/:order_id/verify-pickup
+
+1. CLOTHES & INVENTORY LINE ITEMS:
+Each Item in items array:
+- item_id: String
+- category: String (e.g. 'Men Shirts', 'Silk Saree', 'Bedsheet')
+- title: String
+- quantity: Decimal(8, 2) (Weight in kg or count of pieces)
+- rate: Decimal(10, 2) (Rate per unit)
+- unit: Enum ('kg', 'piece', 'pair', 'item')
+- total_price: Decimal(10, 2) (quantity * rate)
+- image_path: String? (Optional captured photo of clothes)
+
+2. PICKUP VERIFICATION FIELDS:
+- total_weight: Decimal(8, 2)
+- total_items_count: Integer
+- total_actual_price: Decimal(10, 2)
+- customer_otp_input: String(4) (4-digit OTP provided by customer)
+
+3. API REQUEST PAYLOAD:
+{
+  "order_id": "#YD-90823",
+  "customer_otp": "5812",
+  "items": [
+    {
+      "category": "Wash & Fold",
+      "title": "Daily Wear Clothes",
+      "quantity": 3.5,
+      "rate": 45.0,
+      "unit": "kg",
+      "total_price": 157.50
+    },
+    {
+      "category": "Dry Clean",
+      "title": "Blazer",
+      "quantity": 1.0,
+      "rate": 180.0,
+      "unit": "piece",
+      "total_price": 180.00
+    }
+  ],
+  "total_actual_price": 337.50
+}
+
+4. API RESPONSE (200 OK):
+{
+  "success": true,
+  "message": "Pickup verified successfully",
+  "data": {
+    "order_id": "#YD-90823",
+    "delivery_stage": "pickedUp",
+    "next_destination": "Star Bright Laundry, Shop No. 12, Sector 15, HSR Layout"
+  }
+}

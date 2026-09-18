@@ -1,0 +1,29 @@
+PAGE: VENDOR NEW ORDERS / REQUESTS
+FILE: lib/screens/vendor_new_orders_screen.dart
+API ROUTE: 
+- GET /api/v1/vendor/orders/new-requests
+- POST /api/v1/vendor/orders/:order_id/accept
+- POST /api/v1/vendor/orders/:order_id/reject
+
+1. NEW REQUEST CARD FIELDS:
+- order_id: String ('#YD-9612')
+- received_time: String ('Received 5m ago')
+- badge_text: Enum ('URGENT', 'NEW REQUEST')
+- customer_name: String ('Amit Patel')
+- customer_phone: String ('+91 99887 76655')
+- service_type: String ('Premium Wash & Iron')
+- items_description: String ('3 Shirts, 2 Pants')
+- pickup_slot: String ('Today, 05:00 PM')
+- actions:
+  - 'Accept': Moves order to active in-progress state, opens Vendor Order Details.
+  - 'Reject': Dismisses request and notifies customer/admin.
+
+2. API ACCEPT RESPONSE (200 OK):
+{
+  "success": true,
+  "message": "Order #YD-9612 accepted",
+  "data": {
+    "order_id": "#YD-9612",
+    "order_status": "ACCEPTED"
+  }
+}

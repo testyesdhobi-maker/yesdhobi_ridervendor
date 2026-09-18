@@ -1,0 +1,16 @@
+PAGE: VENDOR HOME DASHBOARD
+FILE: lib/screens/vendor_home_screen.dart
+API ROUTE: GET /api/v1/vendor/dashboard
+
+1. SUMMARY STATS & METRICS:
+- vendor_name: String ('Star Bright Laundry')
+- vendor_id_badge: String ('Vendor ID: #V-8947')
+- today_revenue: Decimal(10, 2) (₹8,450.00)
+- today_orders_count: Integer (24)
+- pending_requests_count: Integer (2)
+- in_progress_count: Integer (14)
+- ready_for_delivery_count: Integer (8)
+- recent_orders: Array of VendorOrderModel (Limit: 5)
+
+2. FLOATING / PERSISTENT COMPONENTS:
+- VendorPersistentOtpBanner: Appears if there is any active order with an unverified pickup OTP.

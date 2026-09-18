@@ -1,0 +1,25 @@
+PAGE: PORTAL SELECTION / WELCOME SCREEN
+FILE: lib/screens/portal_selection_screen.dart
+
+1. PURPOSE:
+Entry point for the application allowing the user to choose between the Delivery Rider and Vendor portals, and choose between Registering or Logging in.
+
+2. UI INPUT & STATE FIELDS:
+- selectedPortal: Enum ('RIDER', 'VENDOR')
+  - Description: Determines which flow is active.
+  - Default: 'RIDER'
+- action: Enum ('LOGIN', 'REGISTER')
+  - Description: Whether the user clicked "Continue" (Register) or "Already a user? Log in" (Login).
+
+3. NAVIGATION / REDIRECTION LOGIC:
+- If selectedPortal == 'VENDOR' and action == 'LOGIN':
+  Redirects to Vendor Login Screen (/vendor/login).
+- If selectedPortal == 'VENDOR' and action == 'REGISTER':
+  Redirects to Vendor Login Screen or Vendor Onboarding.
+- If selectedPortal == 'RIDER' and action == 'LOGIN':
+  Redirects to Rider Login Screen (/rider/login).
+- If selectedPortal == 'RIDER' and action == 'REGISTER':
+  Redirects to Rider Registration Step 1 (/rider/register/step1).
+
+4. API RELEVANCE:
+None (Client-side portal router).

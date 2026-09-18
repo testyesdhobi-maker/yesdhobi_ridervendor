@@ -1,0 +1,54 @@
+PAGE: VENDOR ORDER DETAILS & "MARK AS PACKED" ACTION
+FILE: lib/screens/vendor_order_details_screen.dart
+API ROUTE: 
+- GET /api/v1/vendor/orders/:order_id
+- POST /api/v1/vendor/orders/:order_id/mark-packed-and-assign-rider
+
+1. ORDER DETAILS DISPLAY FIELDS:
+- order_id: String ('#YD-9612')
+- customer_name: String ('Amit Patel')
+- customer_phone: String ('+91 99887 76655')
+- customer_initials: String ('AP')
+- items_list: Array<{ name: 'Cotton Shirt', service: 'Wash & Iron (x3)' }, { name: 'Formal Trousers', service: 'Dry Clean (x2)' }>
+- order_tracker_steps:
+  1. Order Accepted (Completed)
+  2. Order Received (Completed)
+  3. Packing (Active / Completed)
+  4. Picked by Rider (Active / Assigned to Zack Colah / Inactive)
+
+2. UNIFIED "MARK AS PACKED" WORKFLOW:
+- User clicks: "Mark as Packed"
+- Confirmation Dialog Pop-up:
+  - Title: "Mark as Packed & Assign Rider?"
+  - Subtitle: "Order #YD-9612 will be marked as packed, the nearest rider (Zack Colah) will be automatically assigned, and a pickup OTP will be generated."
+  - Buttons: "Cancel", "Confirm & Assign Rider"
+- Upon Confirmation:
+  - Sets is_packed = true
+  - Sets is_rider_booked = true
+  - Assigns nearest rider (Zack Colah)
+  - Generates 4-digit Pickup OTP ('5831')
+  - Directly opens Vendor Rider Booked Screen (/vendor/rider-booked)
+  - Activates persistent floating OTP banner on all vendor screens.
+
+3. API REQUEST:
+POST /api/v1/vendor/orders/YD-9612/mark-packed-and-assign-rider
+{}
+
+4. API RESPONSE (200 OK):
+{
+  "success": true,
+  "message": "Order marked as packed and nearest rider assigned",
+  "data": {
+    "order_id": "#YD-9612",
+    "is_packed": true,
+    "is_rider_booked": true,
+    "assigned_rider": {
+      "rider_id": "rd-9901-uuid",
+      "name": "Zack Colah",
+      "phone": "+91 98765 00000",
+      "vehicle": "Honda Activa • KA 01 AB 1234",
+      "eta": "5 mins"
+    },
+    "pickup_otp": "5831"
+  }
+}

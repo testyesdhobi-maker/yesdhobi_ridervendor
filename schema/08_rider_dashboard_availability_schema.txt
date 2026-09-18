@@ -1,0 +1,36 @@
+PAGE: RIDER DASHBOARD & AVAILABILITY
+FILE: lib/screens/rider_dashboard_screen.dart
+API ROUTE: 
+- GET /api/v1/rider/dashboard
+- PATCH /api/v1/rider/availability
+
+1. UI CONTROLS & FIELDS:
+- is_online: Boolean (Rider Availability toggle: ON / OFF)
+  - ON: Rider is available to receive new pickup requests.
+  - OFF: Rider stops receiving new pickup requests. Active in-progress orders continue normally.
+- current_latitude: Decimal(10, 7) (Live GPS)
+- current_longitude: Decimal(10, 7) (Live GPS)
+
+2. DASHBOARD DISPLAY STATS:
+- today_orders_count: Integer (e.g. 8 Orders)
+- today_earnings: Decimal(10, 2) (e.g. ₹840.00)
+- total_distance_km: Decimal(6, 2) (e.g. 18.4 km)
+- rating: Decimal(2, 1) (e.g. 4.9)
+- active_orders: Array of Active Assigned Orders
+
+3. AVAILABILITY TOGGLE API REQUEST:
+PATCH /api/v1/rider/availability
+{
+  "is_online": true,
+  "latitude": 12.93524,
+  "longitude": 77.62451
+}
+
+4. API RESPONSE (200 OK):
+{
+  "success": true,
+  "data": {
+    "is_online": true,
+    "last_updated_at": "2026-08-28T10:10:00Z"
+  }
+}

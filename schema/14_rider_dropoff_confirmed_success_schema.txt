@@ -1,0 +1,13 @@
+PAGE: DROPOFF CONFIRMED / SUCCESS SCREEN
+FILE: lib/screens/dropoff_confirmed_screen.dart
+
+1. DISPLAY FIELDS:
+- success_badge: String ('Drop-off Confirmed!')
+- order_id: String ('#YD-9612')
+- dropoff_time: String ('10:45 AM')
+- vendor_name: String ('Star Bright Laundry')
+- earned_amount_text: String ('+₹65.00 Credited to Wallet')
+
+2. ACTIONS:
+- "Back to Dashboard" -> Navigates to Rider Dashboard.
+- "View Earnings" -> Navigates to Rider My Earnings Screen.

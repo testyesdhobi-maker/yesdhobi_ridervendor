@@ -1,0 +1,38 @@
+PAGE: RIDER ORDER HISTORY
+FILE: lib/screens/order_history_screen.dart
+API ROUTE: GET /api/v1/rider/orders/history?page=1&limit=20
+
+1. LIST ITEM FIELDS:
+- order_id: String (e.g. '#YD-90823')
+- order_date_formatted: String (e.g. '12th Oct 2026')
+- pickup_from_address: String (e.g. 'From: Rahul Sharma, Sector 45')
+- dropoff_to_address: String (e.g. 'To: Yes Dhobi Sector 44')
+- payout_amount: Decimal(10, 2) (e.g. ₹65.00)
+- order_status: Enum ('DELIVERED', 'CANCELLED')
+
+2. API RESPONSE (200 OK):
+{
+  "success": true,
+  "data": {
+    "total_count": 42,
+    "page": 1,
+    "orders": [
+      {
+        "order_id": "#YD-90823",
+        "date": "2026-10-12T00:00:00Z",
+        "pickup_from": "Rahul Sharma, Sector 45",
+        "delivery_to": "Yes Dhobi Sector 44",
+        "payout": 65.00,
+        "status": "DELIVERED"
+      },
+      {
+        "order_id": "#YD-90761",
+        "date": "2026-10-11T00:00:00Z",
+        "pickup_from": "Karan Mehra, Indiranagar",
+        "delivery_to": "Yes Dhobi Indiranagar",
+        "payout": 140.00,
+        "status": "DELIVERED"
+      }
+    ]
+  }
+}

@@ -1,0 +1,31 @@
+PAGE: RIDER IDENTITY VERIFICATION / FRONT CAMERA SELFIE
+FILES: 
+- lib/screens/identity_verification_screen.dart
+- lib/screens/front_camera_selfie_screen.dart
+- lib/screens/selfie_confirmation_screen.dart
+API ROUTE: POST /api/v1/rider/verify-selfie
+
+1. PURPOSE & CAMERA CONSTRAINTS:
+- Camera Requirement: Front-Facing Camera ONLY.
+- Rear camera switching is disabled.
+- Purpose: Daily / Post-login biometric verification before allowing Rider Dashboard access.
+
+2. API REQUEST PAYLOAD:
+- rider_id: UUID
+- selfie_photo: File (Image multipart, Max 5MB)
+- captured_at: Timestamp
+
+3. API RESPONSE (200 OK):
+{
+  "success": true,
+  "message": "Selfie verified successfully",
+  "data": {
+    "rider_id": "c7a8b412-1a2b-4c3d-8e9f-0123456789ab",
+    "is_selfie_verified": true,
+    "selfie_url": "https://storage.yesdhobi.com/riders/RD-8842/selfie_20260828.jpg",
+    "verified_at": "2026-08-28T10:05:00Z"
+  }
+}
+
+4. NEXT NAVIGATION DESTINATION:
+Rider Dashboard Screen (/rider/dashboard).

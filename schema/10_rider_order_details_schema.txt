@@ -1,0 +1,27 @@
+PAGE: RIDER ORDER DETAILS SCREEN
+FILE: lib/screens/rider_order_details_screen.dart
+API ROUTE: GET /api/v1/rider/orders/:order_id
+
+1. DISPLAY & DATA FIELDS:
+- order_id: String (e.g. '#YD-90823')
+- customer_name: String (e.g. 'Rahul Sharma')
+- customer_initials: String ('RS')
+- customer_phone: String ('+91 98765 43210')
+- customer_rating: Decimal(2, 1) (4.9)
+- customer_address: String ('B-402, Shanti Vihar, Sector 45')
+- delivery_address: String ('Yes Dhobi Hub, Sector 44 Branch')
+- estimated_load: String ('12-15 Items (Approx. 4kg)')
+- travel_distance: String ('2.8 km total')
+- estimated_time: String ('15-20 Mins')
+- payout: String ('₹65.00')
+- estimated_price: Decimal(10, 2) (450.00)
+- items_quantity_text: String ('12-15 items (Wash & Fold)')
+- stage: Enum ('accepted', 'pickedUp', 'outForDrop', 'delivered')
+- pickup_latitude: Decimal(10, 7)
+- pickup_longitude: Decimal(10, 7)
+- vendor_latitude: Decimal(10, 7)
+- vendor_longitude: Decimal(10, 7)
+
+2. ACTIONS:
+- "Call Customer" -> Initiates dialer to customer_phone.
+- "Verify Pickup" -> Navigates to Pickup Verification & Pricing Screen.

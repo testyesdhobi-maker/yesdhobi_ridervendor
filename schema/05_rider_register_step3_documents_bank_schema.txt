@@ -1,0 +1,71 @@
+PAGE: RIDER REGISTRATION - STEP 3: DOCUMENTS & BANK DETAILS
+FILE: lib/screens/rider_register_step3_screen.dart
+API ROUTE: POST /api/v1/rider/register/step3
+
+1. FORM INPUT FIELDS & VALIDATION RULES:
+- temp_registration_id:
+  - Type: UUID (Mandatory)
+- aadhaar_front_photo:
+  - Type: File (Image upload / S3)
+  - Mandatory: Yes
+  - Max Size: 5 MB
+  - Errors:
+    - Empty: "Please upload Aadhaar card front photo"
+    - Size: "Aadhaar front photo must be less than 5MB"
+- aadhaar_back_photo:
+  - Type: File (Image upload / S3)
+  - Mandatory: Yes
+  - Max Size: 5 MB
+  - Errors:
+    - Empty: "Please upload Aadhaar card back photo"
+    - Size: "Aadhaar back photo must be less than 5MB"
+- pan_number:
+  - Type: String (10 characters)
+  - Mandatory: Yes
+  - Regex: ^[A-Z]{5}[0-9]{4}[A-Z]$
+  - Errors:
+    - Empty: "Please enter your PAN card number"
+    - Format: "Enter a valid 10-character PAN (e.g. ABCDE1234F)"
+- bank_name:
+  - Type: String
+  - Mandatory: Optional (Default: 'State Bank of India')
+- bank_account_number:
+  - Type: String (9 to 18 digits)
+  - Mandatory: Yes
+  - Regex: ^\d{9,18}$
+  - Errors:
+    - Empty: "Please enter your bank account number"
+    - Non-numeric: "Bank account number must contain only digits"
+    - Length: "Enter a valid 9 to 18 digit bank account number"
+- ifsc_code:
+  - Type: String (11 characters)
+  - Mandatory: Yes
+  - Regex: ^[A-Z]{4}0[A-Z0-9]{6}$
+  - Errors:
+    - Empty: "Please enter your bank IFSC code"
+    - Format: "Enter a valid IFSC code (e.g. HDFC0000123)"
+
+2. API REQUEST PAYLOAD:
+{
+  "temp_registration_id": "c7a8b412-1a2b-4c3d-8e9f-0123456789ab",
+  "aadhaar_front_url": "https://storage.yesdhobi.com/uploads/aadhaar_front.jpg",
+  "aadhaar_front_size": 1548576,
+  "aadhaar_back_url": "https://storage.yesdhobi.com/uploads/aadhaar_back.jpg",
+  "aadhaar_back_size": 1420500,
+  "pan_number": "ABCDE1234F",
+  "bank_name": "State Bank of India",
+  "bank_account_number": "987654321012",
+  "ifsc_code": "SBIN0001234"
+}
+
+3. API RESPONSE (201 CREATED):
+{
+  "success": true,
+  "message": "Registration submitted successfully. Application is under review.",
+  "data": {
+    "rider_id": "c7a8b412-1a2b-4c3d-8e9f-0123456789ab",
+    "rider_code": "RD-8842",
+    "onboarding_status": "UNDER_REVIEW",
+    "is_verified": false
+  }
+}
